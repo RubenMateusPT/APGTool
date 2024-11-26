@@ -3,17 +3,23 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using TimeSpan = System.TimeSpan;
 
 public class NetworkManager : MonoBehaviour
 {
+    public TextMeshProUGUI serverIpText;
+    public Image botStatus;
+
     private TcpListener server;
     private TcpClient client;
 
     private void Awake()
     {
         server = new TcpListener(IPAddress.Parse("127.0.0.1"), 2525);
+        serverIpText.text = $"Server IP: 127.0.0.1:2525";
         server.Start();
         Debug.Log($"APG Server started at: {server.LocalEndpoint}");
         WaitForClients();
@@ -24,6 +30,7 @@ public class NetworkManager : MonoBehaviour
         client = await server.AcceptTcpClientAsync();
         var stream = client.GetStream();
         Debug.Log("New client has connected");
+        botStatus.color = Color.green;
 
         while (client.Connected)
         {
@@ -46,6 +53,7 @@ public class NetworkManager : MonoBehaviour
             await Task.Delay(TimeSpan.FromMilliseconds(50));
         }
 
+        botStatus.color = Color.red;
         Debug.Log("Client has left");
     }
 }
