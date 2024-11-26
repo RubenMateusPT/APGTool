@@ -4,12 +4,15 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using TimeSpan = System.TimeSpan;
 
 public class NetworkManager : MonoBehaviour
 {
+    public static NetworkManager Instance { get; private set; }
+
     public TextMeshProUGUI serverIpText;
     public Image botStatus;
 
@@ -18,11 +21,21 @@ public class NetworkManager : MonoBehaviour
 
     private void Awake()
     {
-        server = new TcpListener(IPAddress.Parse("127.0.0.1"), 2525);
-        serverIpText.text = $"Server IP: 127.0.0.1:2525";
-        server.Start();
-        Debug.Log($"APG Server started at: {server.LocalEndpoint}");
-        WaitForClients();
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(this.gameObject);
+
+            server = new TcpListener(IPAddress.Parse("127.0.0.1"), 2525);
+            serverIpText.text = $"Server IP: 127.0.0.1:2525";
+            server.Start();
+            Debug.Log($"APG Server started at: {server.LocalEndpoint}");
+            WaitForClients();
+        }
     }
 
     private async Task WaitForClients()
