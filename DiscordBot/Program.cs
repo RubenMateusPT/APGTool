@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using Discord;
 using Discord.Net;
 using Discord.WebSocket;
@@ -11,6 +12,7 @@ namespace DiscordBot
     internal class Program
     {
         private static DiscordSocketClient _client;
+        private static TcpClient _gameServer;
 
         static async Task Main(string[] args)
         {
@@ -53,6 +55,8 @@ namespace DiscordBot
             commands.Add(new SlashCommandBuilder().WithName("ping").WithDescription("Pings the bot"));
             commands.Add(new SlashCommandBuilder().WithName("bot-ip").WithDescription("Gets bot IP"));
             commands.Add(new SlashCommandBuilder().WithName("clear").WithDescription("Clears text channel"));
+            commands.Add(new SlashCommandBuilder().WithName("connect").WithDescription("Connect to a game instance").AddOption("ip", ApplicationCommandOptionType.String,"The ip and port of game", isRequired:true));
+            commands.Add(new SlashCommandBuilder().WithName("ping-game").WithDescription("Ping the game server"));
 
             try
             {
@@ -86,14 +90,42 @@ namespace DiscordBot
 
                 case "clear":
                     await command.RespondAsync("Deleting text channel messages");
-
                     var messages = await command.Channel.GetMessagesAsync().FlattenAsync();
                     foreach (var message in messages)
                     {
                         await command.Channel.DeleteMessageAsync(message);
                     }
+                    break;
+                case "connect":
+                    _gameServer = new TcpClient();
+                    await _gameServer.ConnectAsync(
+                        IPEndPoint.Parse(
+                            command.Data.Options.First().Value.ToString()
+                        )
+                    );
 
-                    
+                    await command.RespondAsync($"Succeslfully connect to: {command.Data.Options.First().Value.ToString()}");
+                    break;
+
+                case "ping-game":
+                    await command.DeferAsync();
+
+                    var stream = _gameServer.GetStream();
+                    var gameCommand = "ping";
+                    var buffer = Encoding.UTF8.GetBytes(gameCommand);
+                    await stream.WriteAsync(buffer, 0, buffer.Length);
+
+                    while (_gameServer.Available == 0)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(1));
+                    }
+
+                    var res = new byte[_gameServer.Available];
+                    await stream.ReadAsync(res, 0, res.Length);
+                    var resDec = Encoding.UTF8.GetString(res);
+
+                    await command.ModifyOriginalResponseAsync(prop =>
+                        prop.Content = $"Game respondeded with: {resDec}");
                     break;
             }
         }
