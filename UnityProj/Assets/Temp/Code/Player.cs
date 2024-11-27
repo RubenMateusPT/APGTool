@@ -17,8 +17,13 @@ public class Player : MonoBehaviour
 
     private GameManager gameManager;
 
+    public GameObject doorrequestText;
+
     public void AddLife()
     {
+        if (gameManager.gameEnded)
+            return;
+
         lifes++;
         UpdateLifesText();
     }
@@ -26,6 +31,9 @@ public class Player : MonoBehaviour
     public void LoseLife()
     {
         lifes--;
+        if(lifes > 0)
+            transform.position = startPos;
+
         UpdateLifesText();
     }
 
@@ -34,13 +42,7 @@ public class Player : MonoBehaviour
         lifesText.text = $"x {lifes}";
 
         if(lifes <= 0)
-        {
             gameManager.EndGame(false);
-        }
-        else
-        {
-            transform.position = startPos;
-        }
     }
 
 
@@ -85,6 +87,13 @@ public class Player : MonoBehaviour
         if (collision.gameObject.tag == "Enemy")
         {
             LoseLife();
+        }
+
+        if (collision.gameObject.tag == "DoorTrigger")
+        {
+            collision.gameObject.SetActive(false);
+            doorrequestText.SetActive(true);
+            NetworkManager.Instance.SendDoorRequest();
         }
 
         if (collision.gameObject.tag == "Goal")
