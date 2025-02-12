@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c0b59f14f13a2da41a4ed5975fe1165e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_ViewDataDictionary: {instanceID: 0}
+  - m_VisualTreeAsset: {fileID: 9197481963319205126, guid: 007d220e1b19ed74ea9f40df0b192583, type: 3}
+  - apgSceneAsset: {fileID: 11400000, guid: 0c5e45f836c0f1c4da443e65cd4cc838, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -22,6 +22,8 @@ public class NetworkManager : MonoBehaviour
     public TcpListener server;
     public TcpClient client;
 
+    public APGScene apg;
+
     private bool canOpenDoor = false;
     private bool doorhasbeenopened = false;
 
@@ -38,12 +40,15 @@ public class NetworkManager : MonoBehaviour
             Instance.canOpenDoor = false;
             Instance.doorhasbeenopened = false;
 
+            Instance.apg = FindFirstObjectByType<APGScene>();
+
             Destroy(this);
         }
         else
         {
             Instance = this;
             canISendScreenshot = true;
+            apg = FindFirstObjectByType<APGScene>();
             DontDestroyOnLoad(this.gameObject);
 
             server = new TcpListener(IPAddress.Parse("127.0.0.1"), 2525);
@@ -70,16 +75,15 @@ public class NetworkManager : MonoBehaviour
                 await stream.ReadAsync(bytes, 0, bytes.Length);
                 var command = Encoding.UTF8.GetString(bytes);
 
+                if(bytes.Length == 0)
+                    continue;
+
                 switch (command)
                 {
                     case "ping":
                         Debug.Log("Bot asked for ping, sending pong");
                         var pong = Encoding.UTF8.GetBytes($"pong");
                         await stream.WriteAsync(pong, 0, pong.Length);
-                        break;
-
-                    case "givelife":
-                        FindFirstObjectByType<Player>().AddLife();
                         break;
 
                     case "slowtime":
@@ -100,6 +104,10 @@ public class NetworkManager : MonoBehaviour
                             await stream.WriteAsync(denyDoor, 0, denyDoor.Length);
                         }
           
+                        break;
+
+                    default:
+                        apg.RunCommand(command);
                         break;
                 }
             }

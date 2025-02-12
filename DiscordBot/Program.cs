@@ -70,6 +70,8 @@ namespace DiscordBot
             commands.Add(new SlashCommandBuilder().WithName("slow-down-time").WithDescription("Slow down time for a brief moment"));
             commands.Add(new SlashCommandBuilder().WithName("open-door").WithDescription("Open the castles door"));
 
+            commands.Add(new SlashCommandBuilder().WithName("run").WithDescription("Run a command on game").AddOption("command-name", ApplicationCommandOptionType.String, "The command to run", isRequired: true));
+
             try
             {
                 foreach (var command in commands)
@@ -215,8 +217,6 @@ namespace DiscordBot
                     }
                     break;
 
-
-
                 case "ping-game":
                     pingCommand = command;
                     await command.DeferAsync();
@@ -254,6 +254,15 @@ namespace DiscordBot
                     await _gameServer.GetStream().WriteAsync(odb, 0, odb.Length);
                     break;
 
+                case "run":
+                    await command.DeferAsync();
+                    var commandName = command.Data.Options.First().Value.ToString();
+
+                    var com = Encoding.UTF8.GetBytes(commandName);
+                    await _gameServer.GetStream().WriteAsync(com, 0, com.Length);
+
+                    await command.ModifyOriginalResponseAsync(prop => prop.Content = $"Ran command: {commandName}");
+                    break;
             }
         }
     }
