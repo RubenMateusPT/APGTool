@@ -2,9 +2,15 @@
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            var relayServer = new RelayServer();
+
+            relayServer.Run();
+
+
+            // Block this task until the program is closed.
+            await Task.Delay(-1);
         }
     }
 }
