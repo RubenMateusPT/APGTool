@@ -1,13 +1,12 @@
-﻿namespace APG.Discord
+﻿using APG.Discord.Server;
+
+namespace APG.Discord
 {
     internal class Program
     {
         static async Task Main(string[] args)
         {
-            var relayServer = new RelayServer();
-
-            relayServer.Run();
-
+            new ServerManager().Start();
 
             // Block this task until the program is closed.
             await Task.Delay(-1);

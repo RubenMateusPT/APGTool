@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APG.Discord", "APG.Discord\APG.Discord.csproj", "{C69CFA40-8A48-474E-91B5-5AE66C1ED1CF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APG.Server", "APG.Discord\APG.Server.csproj", "{C69CFA40-8A48-474E-91B5-5AE66C1ED1CF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APG.Common", "APG.Common\APG.Common.csproj", "{F50D8BD4-6F36-4757-8992-AF7925F5E60F}"
 EndProject

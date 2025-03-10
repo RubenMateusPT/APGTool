@@ -15,4 +15,8 @@
     <ProjectReference Include="..\APG.Common\APG.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Discord\" />
+  </ItemGroup>
+
 </Project>
