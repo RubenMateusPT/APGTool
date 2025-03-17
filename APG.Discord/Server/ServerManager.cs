@@ -37,7 +37,7 @@ namespace APG.Discord.Server
                 ProcessReceive();
                 ProcessSend();
                 CheckClientStatus();
-                await Task.Delay(10);
+                await Task.Delay(TimeSpan.FromMilliseconds(10));
             }
         }
 
@@ -71,10 +71,11 @@ namespace APG.Discord.Server
 
         private void CheckClientStatus()
         {
-            foreach (var client in clients.Values)
+            foreach (var client in clients)
             {
-                //TODO Kill inactive clients to free memory
-                client.CheckStatus();
+                var status = client.Value.CheckStatus(TimeSpan.FromMilliseconds(10).TotalMilliseconds);
+                if (status == UnityClient.Status.Disposed)
+                    clients.Remove(client.Key);
             }
         }
     }

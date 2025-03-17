@@ -97,6 +97,7 @@ namespace APG.Server.Discord
                         await command.RespondAsync("Server not found!");
                         return;
                     }
+                    unityClient.Activate();
 
                     await command.RespondAsync(
                         $"Found server for game {unityClient.GameName}. Creating necessary channels...."

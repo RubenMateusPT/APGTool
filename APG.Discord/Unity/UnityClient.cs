@@ -7,17 +7,30 @@ using System.Threading.Tasks;
 using APG.Common.Packets;
 using APG.Common.Packets.Types;
 using Newtonsoft.Json.Linq;
+using Timer = System.Timers.Timer;
 
 namespace APG.Discord.Unity
 {
     internal class UnityClient
     {
+        internal enum Status
+        {
+            WaitingForHost,
+            Connected,
+            Close,
+            Disposed
+        }
+
         private PacketManager _packetManager = new PacketManager();
 
         private TcpClient _tcp;
         private NetworkStream _stream;
         private byte[] _streamBuffer = new byte[PacketManager.MAX_BUFFER_SIZE];
-        private DateTime _lastPing;
+
+        private Status _currentStatus;
+        private double _waitCounter = 0;
+        private double _maxWaitTime = TimeSpan.FromSeconds(10).TotalMilliseconds;
+        private Guid _pingId = Guid.Empty;
 
         Queue<Packet> _sendPacketsQueue = new Queue<Packet>();
 
@@ -31,10 +44,17 @@ namespace APG.Discord.Unity
             _tcp = tcpClient;
             _stream = tcpClient.GetStream();
 
-            _lastPing = DateTime.UtcNow;
             Guid = Guid.NewGuid();
+
+            _currentStatus = Status.WaitingForHost;
         }
 
+        public void Activate()
+        {
+            Console.WriteLine($"{_tcp.Client.RemoteEndPoint} has a Owner now!");
+            _waitCounter = 0;
+            _currentStatus = Status.Connected;
+        }
 
         public async void ProcessReceive()
         {
@@ -45,17 +65,27 @@ namespace APG.Discord.Unity
                 if(packet != null)
                     ProcessPacket(packet);
             }
-
-            _lastPing = DateTime.Now;
         }
 
         private void ProcessPacket(Packet packet)
         {
+            _waitCounter = 0;
+            if(_pingId != Guid.Empty)
+                _pingId = Guid.Empty;
+
             switch (packet.DataType.Name)
             {
+                case nameof(Ping):
+                    var ping = packet.GetData<Ping>();
+                    Send(new Pong { ID = ping.ID });
+                    break;
+
+                case nameof(Pong):
+                    var pong = packet.GetData<Pong>();
+                    break;
+
                 case nameof(CodeRequest):
                     var codeRequest = packet.GetData<CodeRequest>();
-                    
                     GameName = codeRequest.GameName;
 
                     Send(new CodeSend{ID = this.Guid});
@@ -81,9 +111,51 @@ namespace APG.Discord.Unity
             _sendPacketsQueue.Enqueue(new Packet(data));
         }
 
-        public void CheckStatus()
+        public Status CheckStatus(double dt)
         {
+            switch (_currentStatus)
+            {
+                case Status.WaitingForHost:
+                    _waitCounter += dt;
+                    if (_waitCounter > _maxWaitTime)
+                       _currentStatus = Status.Close;
 
+                    break;
+
+                case Status.Connected:
+                    if (_tcp.Connected)
+                    {
+                        _waitCounter += dt;
+
+                        if (_waitCounter > _maxWaitTime)
+                        {
+                            if (_pingId == Guid.Empty)
+                            {
+                                _waitCounter = 0;
+                                var ping = new Ping();
+                                _pingId = ping.ID;
+                                Send(ping);
+                            }
+                            else
+                            {
+                                _currentStatus = Status.Close;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _currentStatus = Status.Close;
+                    }
+                    break;
+
+                case Status.Close:
+                    _currentStatus = Status.Disposed;
+                    Console.WriteLine($"Client Disconnected from {_tcp.Client.RemoteEndPoint}");
+                    _tcp.Close();
+                    break;
+            }
+
+            return _currentStatus;
         }
 
     }

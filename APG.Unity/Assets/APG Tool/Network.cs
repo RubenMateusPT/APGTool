@@ -6,6 +6,7 @@ using System.Text;
 using APG.Common.Packets;
 using APG.Common.Packets.Types;
 using UnityEngine;
+using Ping = APG.Common.Packets.Types.Ping;
 
 public class Network : MonoBehaviour
 {
@@ -49,6 +50,9 @@ public class Network : MonoBehaviour
         if(_sendPacketsQueue.Count > 0)
             ProcessSend();
 
+
+        if(Input.GetKeyDown(KeyCode.Q))
+            _tcp.Close();
     }
 
     private async void ProcessReceive()
@@ -67,6 +71,11 @@ public class Network : MonoBehaviour
     {
         switch (packet.DataType.Name)
         {
+            case nameof(Ping):
+                var ping = packet.GetData<Ping>();
+                Send(new Pong{ID = ping.ID});
+                break;
+
             case nameof(CodeSend):
                 var codeSend = packet.GetData<CodeSend>();
                 Debug.Log($"Got Code {codeSend.ID}");
