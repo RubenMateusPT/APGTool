@@ -12,12 +12,14 @@ namespace APG.Discord.Server
     internal class ServerManager
     {
         TcpListener listener;
-        Dictionary<Guid,Unity.Client> clients = new Dictionary<Guid, Client>();
+        Dictionary<Guid,Unity.UnityClient> clients = new Dictionary<Guid, UnityClient>();
 
         public ServerManager()
         {
             listener = new TcpListener(new IPEndPoint(IPAddress.Any, 8000));
         }
+
+        public UnityClient GetClient(Guid code) => clients.ContainsKey(code) ? clients[code] : null;
 
         public void Start()
         {
@@ -34,6 +36,7 @@ namespace APG.Discord.Server
                 ListenForConnections();
                 ProcessReceive();
                 ProcessSend();
+                CheckClientStatus();
                 await Task.Delay(10);
             }
         }
@@ -43,7 +46,7 @@ namespace APG.Discord.Server
             while (listener.Pending())
             {
                 var tcpClient = await listener.AcceptTcpClientAsync();
-                var newClient = new Unity.Client(tcpClient);
+                var newClient = new Unity.UnityClient(tcpClient);
                 clients.Add(newClient.Guid,newClient);
 
                 Console.WriteLine($"New client connected from {tcpClient.Client.RemoteEndPoint}");
@@ -54,7 +57,7 @@ namespace APG.Discord.Server
         {
             foreach (var client in clients.Values)
             {
-                client.Receive();
+                client.ProcessReceive();
             }
         }
 
@@ -62,7 +65,16 @@ namespace APG.Discord.Server
         {
             foreach (var client in clients.Values)
             {
-                //client.Send();
+                client.ProcessSend();
+            }
+        }
+
+        private void CheckClientStatus()
+        {
+            foreach (var client in clients.Values)
+            {
+                //TODO Kill inactive clients to free memory
+                client.CheckStatus();
             }
         }
     }

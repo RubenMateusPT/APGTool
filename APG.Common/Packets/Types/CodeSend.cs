@@ -11,10 +11,5 @@ namespace APG.Common.Packets.Types
         public Guid ID { get => Guid.Parse(idString); set => idString = value.ToString(); }
         [JsonProperty]
         private string idString;
-
-        public CodeSend()
-        {
-            ID = Guid.NewGuid();
-        }
     }
 }

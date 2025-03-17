@@ -10,18 +10,23 @@ using Newtonsoft.Json.Linq;
 
 namespace APG.Discord.Unity
 {
-    internal class Client
+    internal class UnityClient
     {
+        private PacketManager _packetManager = new PacketManager();
+
         private TcpClient _tcp;
         private NetworkStream _stream;
         private byte[] _streamBuffer = new byte[PacketManager.MAX_BUFFER_SIZE];
         private DateTime _lastPing;
 
-        private PacketManager _packetManager = new PacketManager();
+        Queue<Packet> _sendPacketsQueue = new Queue<Packet>();
+
+        //Client Info
+        public string GameName { get; private set; }
 
         public Guid Guid { get; private set; }
 
-        public Client(TcpClient tcpClient)
+        public UnityClient(TcpClient tcpClient)
         {
             _tcp = tcpClient;
             _stream = tcpClient.GetStream();
@@ -31,7 +36,7 @@ namespace APG.Discord.Unity
         }
 
 
-        public async void Receive()
+        public async void ProcessReceive()
         {
             while (_stream.DataAvailable)
             {
@@ -40,6 +45,8 @@ namespace APG.Discord.Unity
                 if(packet != null)
                     ProcessPacket(packet);
             }
+
+            _lastPing = DateTime.Now;
         }
 
         private void ProcessPacket(Packet packet)
@@ -48,18 +55,35 @@ namespace APG.Discord.Unity
             {
                 case nameof(CodeRequest):
                     var codeRequest = packet.GetData<CodeRequest>();
-                    Send(new Packet(new CodeSend()));
+                    
+                    GameName = codeRequest.GameName;
+
+                    Send(new CodeSend{ID = this.Guid});
                     break;
             }
         }
 
-        public async void Send(Packet packet)
+        public async void ProcessSend()
         {
-            var data = _packetManager.PackPacket(packet);
-            foreach (var bytes in data)
+            while (_sendPacketsQueue.Count > 0)
             {
-                await _stream.WriteAsync(bytes);
+                var packetToSend = _sendPacketsQueue.Dequeue();
+                var packets = _packetManager.PackPacket(packetToSend);
+                foreach (var packet in packets)
+                {
+                    await _stream.WriteAsync(packet);
+                }
             }
+        }
+
+        public void Send<T>(T data)
+        {
+            _sendPacketsQueue.Enqueue(new Packet(data));
+        }
+
+        public void CheckStatus()
+        {
+
         }
 
     }
