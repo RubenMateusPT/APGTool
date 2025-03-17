@@ -21,6 +21,7 @@ namespace APG.Discord.Server
 
         public void Start()
         {
+            Console.WriteLine($"Starting Listening at {listener.LocalEndpoint}");
             listener.Start();
 
             Update();
@@ -41,8 +42,11 @@ namespace APG.Discord.Server
         {
             while (listener.Pending())
             {
-                var newClient = new Unity.Client(await listener.AcceptTcpClientAsync());
+                var tcpClient = await listener.AcceptTcpClientAsync();
+                var newClient = new Unity.Client(tcpClient);
                 clients.Add(newClient.Guid,newClient);
+
+                Console.WriteLine($"New client connected from {tcpClient.Client.RemoteEndPoint}");
             }
         }
 

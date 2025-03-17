@@ -9,12 +9,11 @@ namespace APG.Common.Packets
 {
     public class PacketManager
     {
-        public const int MAX_BUFFER_SIZE = 300;
+        public const int MAX_BUFFER_SIZE = 1024;
 
         private Dictionary<Guid, List<Packet>> splitPackets = new Dictionary<Guid, List<Packet>>();
-        private Queue<Packet> queue = new Queue<Packet>();
 
-        public void UnpackPacket(byte[] buffer, int bytes)
+        public Packet UnpackPacket(byte[] buffer, int bytes)
         {
             var packet = Packet.Unpack(buffer, bytes);
 
@@ -39,17 +38,15 @@ namespace APG.Common.Packets
 
                     var json = Encoding.ASCII.GetString(completeData);
 
-                    queue.Enqueue(
-                        new Packet(packet.ID,
-                            JsonConvert.DeserializeObject(json, completeDataType)
-                            )
-                        );
+                    return new Packet(packet.ID, JsonConvert.DeserializeObject(json, completeDataType));
                 }
             }
             else
             {
-                queue.Enqueue(packet);
+                return packet;
             }
+
+            return null;
         }
 
         public List<byte[]> PackPacket(Packet packetToSend)
@@ -98,7 +95,9 @@ namespace APG.Common.Packets
             }
             else
             {
-                packedPackets.Add(packed);
+                var buffer = new byte[MAX_BUFFER_SIZE];
+                packed.CopyTo(buffer,0);
+                packedPackets.Add(buffer);
             }
 
             return packedPackets;

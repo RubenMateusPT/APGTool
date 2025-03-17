@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using APG.Common.Packets;
@@ -12,6 +13,7 @@ public class Network : MonoBehaviour
     NetworkStream _stream;
     private byte[] _streamBuffer = new byte[PacketManager.MAX_BUFFER_SIZE];
     PacketManager _packetManager = new PacketManager();
+    Queue<Packet> _sendPacketsQueue = new Queue<Packet>();
 
 
     private async void Start()
@@ -30,13 +32,10 @@ public class Network : MonoBehaviour
         _stream = _tcp.GetStream();
 
         Debug.Log("Requesting connection id...");
-
-        var data = _packetManager.PackPacket(new Packet(new CodeRequest()));
-        Debug.Log(data.Count);
-        foreach (var b in data)
+        Send(new CodeRequest
         {
-            await _stream.WriteAsync(b);
-        }
+            GameName = "Super Game"
+        });
     }
 
     private async void Update()
@@ -45,12 +44,51 @@ public class Network : MonoBehaviour
             return;
 
         if (_stream.DataAvailable)
+            ProcessReceive();
+
+        if(_sendPacketsQueue.Count > 0)
+            ProcessSend();
+
+    }
+
+    private async void ProcessReceive()
+    {
+        while (_stream.DataAvailable)
         {
-            while (_stream.DataAvailable)
+            int received = await _stream.ReadAsync(_streamBuffer);
+            Packet packet = _packetManager.UnpackPacket(_streamBuffer, received);
+
+            if (packet != null)
+                ProcessPacket(packet);
+        }
+    }
+
+    private void ProcessPacket(Packet packet)
+    {
+        switch (packet.DataType.Name)
+        {
+            case nameof(CodeSend):
+                var codeSend = packet.GetData<CodeSend>();
+                Debug.Log($"Got Code {codeSend.ID}");
+                break;
+        }
+    }
+
+    private async void ProcessSend()
+    {
+        while (_sendPacketsQueue.Count > 0)
+        {
+            var packetToSend = _sendPacketsQueue.Dequeue();
+            var packets = _packetManager.PackPacket(packetToSend);
+            foreach (var packet in packets)
             {
-                int received = await _stream.ReadAsync(_streamBuffer);
-                Debug.Log(Encoding.ASCII.GetString(_streamBuffer, 0, received));
+                await _stream.WriteAsync(packet);
             }
         }
+    }
+
+    public void Send<T>(T data)
+    {
+        _sendPacketsQueue.Enqueue(new Packet(data));
     }
 }

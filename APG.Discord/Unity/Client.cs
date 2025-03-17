@@ -28,8 +28,6 @@ namespace APG.Discord.Unity
 
             _lastPing = DateTime.UtcNow;
             Guid = Guid.NewGuid();
-
-            var data = _packetManager.PackPacket(new Packet(new CodeRequest()));
         }
 
 
@@ -38,13 +36,31 @@ namespace APG.Discord.Unity
             while (_stream.DataAvailable)
             {
                 int bytes = await _stream.ReadAsync(_streamBuffer);
-                _packetManager.UnpackPacket(_streamBuffer,bytes);
+                var packet = _packetManager.UnpackPacket(_streamBuffer,bytes);
+                if(packet != null)
+                    ProcessPacket(packet);
             }
         }
 
-        public async void Send()
+        private void ProcessPacket(Packet packet)
         {
-
+            switch (packet.DataType.Name)
+            {
+                case nameof(CodeRequest):
+                    var codeRequest = packet.GetData<CodeRequest>();
+                    Send(new Packet(new CodeSend()));
+                    break;
+            }
         }
+
+        public async void Send(Packet packet)
+        {
+            var data = _packetManager.PackPacket(packet);
+            foreach (var bytes in data)
+            {
+                await _stream.WriteAsync(bytes);
+            }
+        }
+
     }
 }

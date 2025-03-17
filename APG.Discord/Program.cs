@@ -6,7 +6,9 @@ namespace APG.Discord
     {
         static async Task Main(string[] args)
         {
+            Console.WriteLine("Starting Server...");
             new ServerManager().Start();
+            Console.WriteLine("Server started");
 
             // Block this task until the program is closed.
             await Task.Delay(-1);
