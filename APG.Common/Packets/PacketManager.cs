@@ -9,7 +9,8 @@ namespace APG.Common.Packets
 {
     public class PacketManager
     {
-        public const int MAX_BUFFER_SIZE = 1024;
+        //max is 2 130 702 268
+        public const int MAX_BUFFER_SIZE = 100000; //Change this to lower....
 
         private Dictionary<Guid, List<Packet>> splitPackets = new Dictionary<Guid, List<Packet>>();
 
@@ -57,6 +58,7 @@ namespace APG.Common.Packets
 
             if (packed.Length >= MAX_BUFFER_SIZE)
             {
+                //This Logic is not working as intented
                 var completeData = packetToSend.GetDataBytes();
                 var minimumForSplitPacket = (packed.Length - (packed.Length - completeData.Length)) * 1.50f;
                 int maxDataBytesPerPacket = (int) MathF.Ceiling((MAX_BUFFER_SIZE - minimumForSplitPacket) * 0.5f);

@@ -6,12 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 using APG.Common.Packets;
 using APG.Common.Packets.Types;
+using APG.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Ping = APG.Common.Packets.Types.Ping;
 
 public class NetworkManager : MonoBehaviour
 {
+    [SerializeField] private SettingsScriptableObject settings;
+
     private TcpClient _tcp;
     private NetworkStream _stream;
     private byte[] _streamBuffer = new byte[PacketManager.MAX_BUFFER_SIZE];
@@ -21,6 +24,7 @@ public class NetworkManager : MonoBehaviour
     public Action<string> OnStatusChange;
 
     public bool IsApgEnabled { get; private set; } = false;
+    private APGManager _currentAPGManager = null;
 
     private void Awake()
     {
@@ -70,6 +74,15 @@ public class NetworkManager : MonoBehaviour
                 OnStatusChange.Invoke("Host connected!\n You can start the game now!");
                 IsApgEnabled = true;
                 break;
+
+            case nameof(GameCommand):
+
+                if(_currentAPGManager == null)
+                    return;
+
+                var gameCommand = packet.GetData<GameCommand>();
+                _currentAPGManager.ExecuteCommand(gameCommand);
+                break;
         }
     }
 
@@ -90,7 +103,7 @@ public class NetworkManager : MonoBehaviour
     {
         OnStatusChange.Invoke("Connecting to Discord Bot @ 127.0.0.1:8000");
         _tcp = new TcpClient();
-        await _tcp.ConnectAsync("127.0.0.1", 8000);
+        await _tcp.ConnectAsync(settings.IP, settings.Port);
 
         if (!_tcp.Connected)
         {
@@ -104,12 +117,19 @@ public class NetworkManager : MonoBehaviour
         OnStatusChange.Invoke("Requesting connection id...");
         Send(new CodeRequest
         {
-            GameName = "Super Game"
+            GameName = settings.GameName,
+            CommandDelimiter = settings.CommandDelimiter,
+            Commands = settings.Commands
         });
     }
 
     public void Send<T>(T data)
     {
         _sendPacketsQueue.Enqueue(new Packet(data));
+    }
+
+    public void RegisterSceneManager(APGManager apgManager)
+    {
+        _currentAPGManager = apgManager;
     }
 }

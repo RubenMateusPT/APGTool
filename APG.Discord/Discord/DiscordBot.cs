@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using APG.Common.Discord;
 using APG.Common.Packets.Types;
 using APG.Discord.Server;
 using APG.Server.Discord.Commands;
@@ -10,6 +12,7 @@ using Discord;
 using Discord.Net;
 using Discord.WebSocket;
 using Newtonsoft.Json;
+using Image = System.Drawing.Image;
 
 namespace APG.Server.Discord
 {
@@ -23,6 +26,9 @@ namespace APG.Server.Discord
         private Dictionary<Tuple<ulong, ulong>, BotClient>
             _instances = new Dictionary<Tuple<ulong, ulong>, BotClient>();
 
+        //Users (should be its own class)
+        private string AVATAR_BASE_FOLDER;
+
         public DiscordBot(string token, ServerManager serverManager)
         {
             _serverManager = serverManager;
@@ -33,6 +39,10 @@ namespace APG.Server.Discord
             _client.Log += Log;
             _client.Ready += Ready;
             _client.SlashCommandExecuted += SlashCommandHandler;
+
+            AVATAR_BASE_FOLDER = $"{Environment.CurrentDirectory}/Avatars";
+            if (!Directory.Exists(AVATAR_BASE_FOLDER))
+                Directory.CreateDirectory(AVATAR_BASE_FOLDER);
         }
 
         public async void Start()
@@ -68,7 +78,11 @@ namespace APG.Server.Discord
                 new SlashCommandBuilder()
                     .WithName(Command.CLIENT_JOIN)
                     .WithDescription($"Client Join")
-                    .AddOption("user", ApplicationCommandOptionType.User, "Host" ,isRequired:true)
+                    .AddOption("user", ApplicationCommandOptionType.User, "Host" ,isRequired:true),
+                new SlashCommandBuilder()
+                    .WithName(Command.SEND_GAME_COMMAND)
+                    .WithDescription("Sends a command to the game")
+                    .AddOption("commnad",ApplicationCommandOptionType.String, "the command to send",isRequired:true)
             };
 
             try
@@ -124,6 +138,10 @@ namespace APG.Server.Discord
                 case Command.CLIENT_JOIN:
                     await ClientJoin(command);
                     break;
+
+                case Command.SEND_GAME_COMMAND:
+                    await SendGameCommand(command);
+                    break;
             }
         }
 
@@ -167,6 +185,15 @@ namespace APG.Server.Discord
                     tc.CategoryId = categoryChannel.Id;
                 }
             );
+
+            string commandsList = string.Empty;
+            foreach (var unityCommand in unityClient.Commands)
+            {
+                commandsList += $"/{Command.SEND_GAME_COMMAND} {unityCommand.Name}\n";
+            }
+            var commandsMessage = await chatChannel.SendMessageAsync(commandsList);
+            await commandsMessage.PinAsync();
+
             var voiceChannel = await guild.CreateVoiceChannelAsync(
                 "voice",
                 vc => vc.CategoryId = categoryChannel.Id
@@ -174,7 +201,12 @@ namespace APG.Server.Discord
 
             await categoryChannel.AddPermissionOverwriteAsync(
                 command.User,
-                new OverwritePermissions(readMessageHistory: PermValue.Allow, sendMessages: PermValue.Allow)
+                new OverwritePermissions(
+                    viewChannel: PermValue.Allow,
+                    readMessageHistory: PermValue.Allow,
+                    sendMessages: PermValue.Allow,
+                    useApplicationCommands: PermValue.Allow
+                    )
             );
 
             //Save
@@ -212,18 +244,86 @@ namespace APG.Server.Discord
                 return;
             }
 
+            var spectators = instance.Spectators;
+            if (!spectators.ContainsKey(command.User.Id))
+            {
+                string avatarImagePath = $"{AVATAR_BASE_FOLDER}/{guildUser.DisplayAvatarId}.png";
+                if (!File.Exists(avatarImagePath))
+                {
+                    using (var webClient = new WebClient())
+                    {
+                        webClient.DownloadFile(guildUser.GetDisplayAvatarUrl(ImageFormat.Png, 64), avatarImagePath);
+                    }
+                }
+                
+                System.Drawing.Image img = Image.FromFile(avatarImagePath);
+                byte[] imgData = Array.Empty<byte>();
+                using (var ms = new MemoryStream())
+                {
+                    img.Save(ms,System.Drawing.Imaging.ImageFormat.Png);
+                    imgData = ms.ToArray();
+                }
+
+                spectators.Add(command.User.Id, new DiscordUser(guildUser.DisplayName, imgData));
+            }
+
             await guild.GetCategoryChannel(instance.CategoryID)
                 .AddPermissionOverwriteAsync(
                     command.User,
                     new OverwritePermissions(
                         viewChannel: PermValue.Allow,
                         readMessageHistory: PermValue.Allow,
-                        sendMessages: PermValue.Allow
+                        sendMessages: PermValue.Allow,
+                        useApplicationCommands: PermValue.Allow
                     )
                 );
 
             await command.RespondAsync($"You've successfully joined {guildHost.DisplayName}");
 
+        }
+
+        private async Task SendGameCommand(SocketSlashCommand command)
+        {
+            var client = GetClient(command);
+
+            if (client == null)
+            {
+                await command.RespondAsync("Uh Oh! Game not found!");
+                return;
+            }
+
+            if (client.HostId == command.User.Id)
+            {
+                await command.RespondAsync("No cheating host!");
+                return;
+            }
+
+            var unity = client.Unity;
+
+            var rawCommand = command.Data.Options.First().Value as String;
+            var splitCommand = rawCommand.Split(unity.CommandDelimiter);
+
+            if (splitCommand.Length == 0)
+            {
+                await command.RespondAsync("No game command given!");
+                return;
+            }
+
+            var unityCommand = unity.Commands.FirstOrDefault(c => c.Name.ToUpperInvariant() == splitCommand[0].ToUpperInvariant(), null);
+
+            if (unityCommand == null)
+            {
+                await command.RespondAsync("No command found for game. Is it correctly written?");
+                return;
+            }
+
+            var user = client.Spectators[command.User.Id];
+            unity.Send(new GameCommand
+            {
+                Command = unityCommand,
+                DiscordUser = user
+            });
+            await command.RespondAsync($"Executing command: {unityCommand.Name}");
         }
 
         private BotClient GetClient(SocketSlashCommand command)

@@ -15,6 +15,7 @@ namespace APG.Server.Discord.Commands
         //Game Related
         public const string HOST_JOIN = "create-game";
         public const string CLIENT_JOIN = "join-game";
+        public const string SEND_GAME_COMMAND = "command";
 
     }
 }

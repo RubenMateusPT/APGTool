@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using APG.Common.Commands;
 using APG.Common.Packets;
 using APG.Common.Packets.Types;
 using Newtonsoft.Json.Linq;
@@ -36,6 +37,8 @@ namespace APG.Discord.Unity
 
         //Client Info
         public string GameName { get; private set; }
+        public char CommandDelimiter { get; private set; }
+        public Command[] Commands { get; private set; }
 
         public Guid Guid { get; private set; }
 
@@ -87,6 +90,8 @@ namespace APG.Discord.Unity
                 case nameof(CodeRequest):
                     var codeRequest = packet.GetData<CodeRequest>();
                     GameName = codeRequest.GameName;
+                    CommandDelimiter = codeRequest.CommandDelimiter;
+                    Commands = codeRequest.Commands;
 
                     Send(new CodeSend{ID = this.Guid});
                     break;
