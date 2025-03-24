@@ -8,8 +8,13 @@ namespace APG.Server.Discord.Commands
 {
     internal class Command
     {
-        public const string HOST_JOIN = "host";
-        public const string CLIENT_JOIN = "join";
+        //Server Related
+        public const string DELETE_SERVER = "delete-server";
+        public const string DELETE_CATEGORY = "delete-category";
+
+        //Game Related
+        public const string HOST_JOIN = "create-game";
+        public const string CLIENT_JOIN = "join-game";
 
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using APG.Common.Packets.Types;
 using APG.Discord.Server;
 using APG.Server.Discord.Commands;
 using Discord;
@@ -52,6 +53,15 @@ namespace APG.Server.Discord
             List<SlashCommandBuilder> commands = new List<SlashCommandBuilder>
             {
                 new SlashCommandBuilder()
+                    .WithName(Command.DELETE_SERVER)
+                    .WithDescription("Cleans up server")
+                    .WithDefaultMemberPermissions(GuildPermission.Administrator),
+                new SlashCommandBuilder()
+                    .WithName(Command.DELETE_CATEGORY)
+                    .WithDescription("Removes Category and its children")
+                    .WithDefaultMemberPermissions(GuildPermission.Administrator),
+
+                new SlashCommandBuilder()
                     .WithName(Command.HOST_JOIN)
                     .WithDescription("Host Join")
                     .AddOption("code",ApplicationCommandOptionType.String, "Host Code", isRequired:true),
@@ -78,101 +88,152 @@ namespace APG.Server.Discord
         private async Task SlashCommandHandler(SocketSlashCommand command)
         {
             var guild = _client.GetGuild(command.GuildId.Value);
-            var guildUser = guild.GetUser(command.User.Id);
 
             switch (command.Data.Name)
             {
-                case Command.HOST_JOIN:
-                    var rawCode = command.Data.Options.First().Value.ToString();
-
-                    if (!Guid.TryParse(rawCode, out var code))
+                case Command.DELETE_SERVER:
+                    foreach (var channel in guild.Channels)
                     {
-                        await command.RespondAsync("Invalid code format!");
-                        return;
+                        await channel.DeleteAsync();
                     }
-                    
-                    var unityClient = _serverManager.GetClient(code);
-                    if (unityClient == null)
-                    {
-                        await command.RespondAsync("Server not found!");
-                        return;
-                    }
-                    unityClient.Activate();
 
-                    await command.RespondAsync(
-                        $"Found server for game {unityClient.GameName}. Creating necessary channels...."
-                        );
-
-                    //Channel Creation
-
-                    var categoryChannel = 
-                        await guild.CreateCategoryChannelAsync(
-                            $"{unityClient.GameName} @{guildUser.DisplayName}"
-                            );
-                    await categoryChannel.AddPermissionOverwriteAsync(guild.EveryoneRole,
-                        OverwritePermissions.DenyAll(categoryChannel));
-                    await categoryChannel.AddPermissionOverwriteAsync(
-                        command.User,
-                        new OverwritePermissions(readMessageHistory: PermValue.Allow, sendMessages:PermValue.Allow)
-                        );
-                    var chatChannel = await guild.CreateTextChannelAsync(
-                        $"chat",
-                        tc =>
-                        {
-                            tc.CategoryId = categoryChannel.Id;
-                        }
-                        );
-                    var voiceChannel = await guild.CreateVoiceChannelAsync(
-                        "voice", 
-                        vc => vc.CategoryId = categoryChannel.Id
-                        );
-
-                    //Save
-                    Tuple<ulong, ulong> instanceID = new Tuple<ulong, ulong>(guild.Id, chatChannel.GuildId);
-                    BotClient client = new BotClient(guild.Id, categoryChannel.Id, chatChannel.GuildId,guildUser.Id , unityClient);
-                    _instances.Add(instanceID,client);
-
-                    await command.Channel.SendMessageAsync($"{guildUser.DisplayName} is hosting a game session of \"{unityClient.GameName}\". Join him by using the \"/join @{guildUser.DisplayName}\" command!");
+                    await guild.CreateTextChannelAsync("main");
 
                     break;
 
+                case Command.DELETE_CATEGORY:
+                    var client = GetClient(command);
+                    if (client != null)
+                    {
+                        var category = guild.GetCategoryChannel(client.CategoryID);
+
+                        foreach (var channel in category.Channels)
+                        {
+                            await channel.DeleteAsync();
+                        }
+
+                        await category.DeleteAsync();
+                    }
+
+                    break;
+
+                case Command.HOST_JOIN:
+                    await HostJoin(command);
+                    break;
+
                 case Command.CLIENT_JOIN:
-                    var rawHost = command.Data.Options.First().Value;
-
-                    if (!(rawHost is SocketUser))
-                    {
-                        await command.RespondAsync("User not found!");
-                        return;
-                    }
-                    var host = rawHost as SocketUser;
-                    var guildHost = guild.GetUser(host.Id);
-
-                    var instance =
-                        _instances.FirstOrDefault(i =>
-                            i.Key.Item1 == command.GuildId &&
-                            i.Value.HostId == host.Id).Value;
-
-                    if (instance == null)
-                    {
-                        await command.RespondAsync("User is not hosting any game!");
-                        return;
-                    }
-
-                    await guild.GetCategoryChannel(instance.CategoryID)
-                        .AddPermissionOverwriteAsync(
-                            command.User,
-                            new OverwritePermissions(
-                                viewChannel: PermValue.Allow,
-                                readMessageHistory: PermValue.Allow, 
-                                sendMessages: PermValue.Allow
-                                )
-                        );
-
-                    await command.RespondAsync($"You've successfully joined {guildHost.DisplayName}");
-
+                    await ClientJoin(command);
                     break;
             }
         }
 
+        private async Task HostJoin(SocketSlashCommand command)
+        {
+            var rawCode = command.Data.Options.First().Value.ToString();
+
+            if (!Guid.TryParse(rawCode, out var code))
+            {
+                await command.RespondAsync("Invalid code format!");
+                return;
+            }
+
+            var unityClient = _serverManager.GetClient(code);
+            if (unityClient == null)
+            {
+                await command.RespondAsync("Server not found!");
+                return;
+            }
+            unityClient.Activate();
+
+            await command.RespondAsync(
+                $"Found server for game {unityClient.GameName}. Creating necessary channels...."
+            );
+
+            //Channel Creation
+            var guild = _client.GetGuild(command.GuildId.Value);
+            var guildUser = guild.GetUser(command.User.Id);
+
+            var categoryChannel =
+                await guild.CreateCategoryChannelAsync(
+                    $"{unityClient.GameName} @{guildUser.DisplayName}"
+                );
+            await categoryChannel.AddPermissionOverwriteAsync(guild.EveryoneRole,
+                OverwritePermissions.DenyAll(categoryChannel));
+
+            var chatChannel = await guild.CreateTextChannelAsync(
+                $"chat",
+                tc =>
+                {
+                    tc.CategoryId = categoryChannel.Id;
+                }
+            );
+            var voiceChannel = await guild.CreateVoiceChannelAsync(
+                "voice",
+                vc => vc.CategoryId = categoryChannel.Id
+            );
+
+            await categoryChannel.AddPermissionOverwriteAsync(
+                command.User,
+                new OverwritePermissions(readMessageHistory: PermValue.Allow, sendMessages: PermValue.Allow)
+            );
+
+            //Save
+            Tuple<ulong, ulong> instanceID = new Tuple<ulong, ulong>(guild.Id, chatChannel.Id);
+            BotClient client = new BotClient(guild.Id, categoryChannel.Id, chatChannel.Id, guildUser.Id, unityClient);
+            _instances.Add(instanceID, client);
+
+            await command.Channel.SendMessageAsync($"{guildUser.DisplayName} is hosting a game session of \"{unityClient.GameName}\". Join him by using the \"/join @{guildUser.DisplayName}\" command!");
+
+            unityClient.Send(new HostConnect());
+        }
+        private async Task ClientJoin(SocketSlashCommand command)
+        {
+            var guild = _client.GetGuild(command.GuildId.Value);
+            var guildUser = guild.GetUser(command.User.Id);
+
+            var rawHost = command.Data.Options.First().Value;
+
+            if (!(rawHost is SocketUser))
+            {
+                await command.RespondAsync("User not found!");
+                return;
+            }
+            var host = rawHost as SocketUser;
+            var guildHost = guild.GetUser(host.Id);
+
+            var instance =
+                _instances.FirstOrDefault(i =>
+                    i.Key.Item1 == command.GuildId &&
+                    i.Value.HostId == host.Id).Value;
+
+            if (instance == null)
+            {
+                await command.RespondAsync("User is not hosting any game!");
+                return;
+            }
+
+            await guild.GetCategoryChannel(instance.CategoryID)
+                .AddPermissionOverwriteAsync(
+                    command.User,
+                    new OverwritePermissions(
+                        viewChannel: PermValue.Allow,
+                        readMessageHistory: PermValue.Allow,
+                        sendMessages: PermValue.Allow
+                    )
+                );
+
+            await command.RespondAsync($"You've successfully joined {guildHost.DisplayName}");
+
+        }
+
+        private BotClient GetClient(SocketSlashCommand command)
+        {
+            var instanceKey = new Tuple<ulong, ulong>(command.GuildId.Value, command.ChannelId.Value);
+
+            if (!_instances.ContainsKey(instanceKey))
+                return null;
+
+            return _instances[instanceKey];
+        }
     }
 }
