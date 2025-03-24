@@ -12,13 +12,6 @@ namespace APG.Unity
 {
     public class APGManager : MonoBehaviour
     {
-        [Serializable]
-        public class SceneCommands
-        {
-            public Command Command;
-            public UnityEvent OnReceive = new UnityEvent();
-        }
-
         [SerializeField] private GameObject discordUser;
         [SerializeField] private TMP_Text discordText;
         [SerializeField] private Image discordSprite;
@@ -46,7 +39,7 @@ namespace APG.Unity
                 return;
 
             var execute = 
-                sceneCommands.FirstOrDefault(c => c.Command.Name == command.Command.Name);
+                sceneCommands.FirstOrDefault(c => c.commandName == command.Command.Name);
 
             if (execute == null)
                 return;
@@ -58,7 +51,7 @@ namespace APG.Unity
                 StartCoroutine(PopUpUser());
             }
 
-            execute.OnReceive.Invoke();
+            execute.onReceive.Invoke();
         }
 
         private Sprite ConvertByteImageToSprite(byte[] bytes)

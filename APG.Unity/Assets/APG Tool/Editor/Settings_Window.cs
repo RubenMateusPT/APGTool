@@ -5,12 +5,12 @@ using UnityEngine.UIElements;
 
 namespace APG.Unity
 {
-    public class SettingsWindow : EditorWindow
+    public class Settings_Window : EditorWindow
     {
         [MenuItem("Audience Participation Game Framework/Settings")]
         public static void Open()
         {
-            SettingsWindow wnd = GetWindow<SettingsWindow>();
+            Settings_Window wnd = GetWindow<Settings_Window>();
             wnd.titleContent = new GUIContent("APG Framework Settings");
         }
 
@@ -68,7 +68,7 @@ namespace APG.Unity
             {
                 CreateSettings();
                 Close();
-                SettingsWindow.Open();
+                Settings_Window.Open();
             });
             createButton.text = "Create Settings";
             root.Add(createButton);
