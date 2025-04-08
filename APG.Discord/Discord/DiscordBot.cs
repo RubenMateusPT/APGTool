@@ -20,6 +20,7 @@ namespace APG.Server.Discord
     {
         private ServerManager _serverManager;
 
+        public DiscordSocketClient Client { get => _client;}
         private DiscordSocketClient _client;
         private string _token;
 
@@ -60,6 +61,12 @@ namespace APG.Server.Discord
 
         private async Task Ready()
         {
+            //var cms = await _client.GetGlobalApplicationCommandsAsync();
+            //foreach (var c in cms)
+            //{
+            //    await c.DeleteAsync();
+            //}
+
             List<SlashCommandBuilder> commands = new List<SlashCommandBuilder>
             {
                 new SlashCommandBuilder()
@@ -211,7 +218,7 @@ namespace APG.Server.Discord
 
             //Save
             Tuple<ulong, ulong> instanceID = new Tuple<ulong, ulong>(guild.Id, chatChannel.Id);
-            BotClient client = new BotClient(guild.Id, categoryChannel.Id, chatChannel.Id, guildUser.Id, unityClient);
+            BotClient client = new BotClient(guild.Id, categoryChannel.Id, chatChannel.Id, guildUser.Id, this, unityClient);
             _instances.Add(instanceID, client);
 
             await command.Channel.SendMessageAsync($"{guildUser.DisplayName} is hosting a game session of \"{unityClient.GameName}\". Join him by using the \"/join @{guildUser.DisplayName}\" command!");

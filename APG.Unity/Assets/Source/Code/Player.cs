@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
@@ -98,6 +99,9 @@ public class Player : MonoBehaviour
         if (collision.gameObject.tag == "Goal")
         {
             gameManager.EndGame(true);
+            OnEndGame.Invoke();
         }
     }
+
+    [SerializeField] private UnityEvent OnEndGame = new UnityEvent();
 }

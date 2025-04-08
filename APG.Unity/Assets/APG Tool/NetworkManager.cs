@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,10 @@ public class NetworkManager : MonoBehaviour
 
     private TcpClient _tcp;
     private NetworkStream _stream;
+
     private byte[] _streamBuffer = new byte[PacketManager.MAX_BUFFER_SIZE];
+    private int totalReceived = 0;
+
     private PacketManager _packetManager = new PacketManager();
     private Queue<Packet> _sendPacketsQueue = new Queue<Packet>();
 
@@ -45,13 +49,33 @@ public class NetworkManager : MonoBehaviour
 
     private async Task ProcessReceive()
     {
+        var buffer = new byte[PacketManager.MAX_BUFFER_SIZE];
+
         while (_stream.DataAvailable)
         {
-            int received = await _stream.ReadAsync(_streamBuffer);
-            Packet packet = _packetManager.UnpackPacket(_streamBuffer, received);
+            int received = await _stream.ReadAsync(_streamBuffer, 0, PacketManager.MAX_BUFFER_SIZE - totalReceived);
+            totalReceived += received;
 
-            if (packet != null)
-                ProcessPacket(packet);
+            if (totalReceived < PacketManager.MAX_BUFFER_SIZE)
+            {
+                Array.Copy(buffer,0,_streamBuffer,totalReceived , received);
+                continue;
+            }
+            else if (totalReceived == PacketManager.MAX_BUFFER_SIZE)
+            {
+                var packet = _packetManager.UnpackPacket(_streamBuffer, totalReceived);
+                if (packet != null)
+                    ProcessPacket(packet);
+
+                totalReceived = 0;
+            }
+            else
+            {
+                Debug.Log($"Total Bytes exceeds array!");
+                totalReceived = 0;
+                _stream.Flush();
+                Send(new Pong { ID = Guid.NewGuid() });
+            }
         }
     }
 
@@ -113,6 +137,7 @@ public class NetworkManager : MonoBehaviour
 
         OnStatusChange.Invoke("Connection Successfully");
         _stream = _tcp.GetStream();
+        _stream.Flush();
 
         OnStatusChange.Invoke("Requesting connection id...");
         Send(new CodeRequest

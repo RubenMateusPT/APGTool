@@ -33,7 +33,7 @@ namespace APG.Discord.Server
         {
             while (true)
             {
-                ListenForConnections();
+                await ListenForConnections();
                 ProcessReceive();
                 ProcessSend();
                 CheckClientStatus();
@@ -41,12 +41,13 @@ namespace APG.Discord.Server
             }
         }
 
-        private async void ListenForConnections()
+        private async Task ListenForConnections()
         {
             while (listener.Pending())
             {
                 var tcpClient = await listener.AcceptTcpClientAsync();
                 var newClient = new Unity.UnityClient(tcpClient);
+
                 clients.Add(newClient.Guid,newClient);
 
                 Console.WriteLine($"New client connected from {tcpClient.Client.RemoteEndPoint}");

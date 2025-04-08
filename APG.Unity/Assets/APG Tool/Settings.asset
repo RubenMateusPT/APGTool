@@ -19,3 +19,5 @@ MonoBehaviour:
   commands:
   - Name: Give Life
   - Name: Kill Enemy
+  - Name: Kill Player
+  - Name: Open Door

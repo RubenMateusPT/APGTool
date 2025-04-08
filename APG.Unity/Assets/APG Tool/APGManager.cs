@@ -6,6 +6,7 @@ using APG.Common.Packets.Types;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.UI;
 
 namespace APG.Unity
@@ -18,11 +19,16 @@ namespace APG.Unity
 
         [SerializeField] private SceneCommands[] sceneCommands;
 
+        private NetworkManager _networkManager;
+
         private bool _isReady = false;
+
+        private Coroutine _popUserCoroutine;
 
         private void Awake()
         {
-            FindFirstObjectByType<NetworkManager>().RegisterSceneManager(this);
+            _networkManager = FindFirstObjectByType<NetworkManager>();
+            _networkManager.RegisterSceneManager(this);
 
             discordUser.SetActive(false);
         }
@@ -48,11 +54,15 @@ namespace APG.Unity
             {
                 discordText.text = $"{command.DiscordUser.Username} did {command.Command.Name}";
                 discordSprite.sprite = ConvertByteImageToSprite(command.DiscordUser.ImageBytes);
-                StartCoroutine(PopUpUser());
+
+                if(_popUserCoroutine != null)
+                    StopCoroutine(_popUserCoroutine);
+                _popUserCoroutine = StartCoroutine(PopUpUser());
             }
 
             execute.onReceive.Invoke();
         }
+
 
         private Sprite ConvertByteImageToSprite(byte[] bytes)
         {
@@ -66,6 +76,22 @@ namespace APG.Unity
             discordUser.SetActive(true);
             yield return new WaitForSeconds(3);
             discordUser.SetActive(false);
+        }
+
+        public void SendScreenShoot(string messageToSend)
+        {
+            StartCoroutine(Screenshoot(messageToSend));
+        }
+
+        private IEnumerator Screenshoot(string messageToSend)
+        {
+            yield return new WaitForEndOfFrame();
+
+            var screenshootTex = ScreenCapture.CaptureScreenshotAsTexture();
+
+            TextureScale.Scale(screenshootTex, 480, 270);
+
+            _networkManager.Send(new Screenshoot(messageToSend, screenshootTex.EncodeToPNG()));
         }
     }
 }

@@ -9,7 +9,7 @@ namespace APG.Server.Discord.Commands
     internal class Command
     {
         //Server Related
-        public const string DELETE_SERVER = "delete-server";
+        public const string DELETE_SERVER = "nuke";
         public const string DELETE_CATEGORY = "delete-category";
 
         //Game Related

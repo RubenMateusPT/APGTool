@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using APG.Common.Commands;
 using APG.Common.Packets;
 using APG.Common.Packets.Types;
+using APG.Server.Discord;
 using Newtonsoft.Json.Linq;
 using Timer = System.Timers.Timer;
 
@@ -26,7 +27,7 @@ namespace APG.Discord.Unity
 
         private TcpClient _tcp;
         private NetworkStream _stream;
-        private byte[] _streamBuffer = new byte[PacketManager.MAX_BUFFER_SIZE];
+        //private byte[] _streamBuffer = new byte[PacketManager.MAX_BUFFER_SIZE];
 
         private Status _currentStatus;
         private double _waitCounter = 0;
@@ -42,10 +43,14 @@ namespace APG.Discord.Unity
 
         public Guid Guid { get; private set; }
 
+        //Discord Info
+        private BotClient discordBot = null;
+
         public UnityClient(TcpClient tcpClient)
         {
             _tcp = tcpClient;
             _stream = tcpClient.GetStream();
+            _stream.Flush();
 
             Guid = Guid.NewGuid();
 
@@ -59,18 +64,36 @@ namespace APG.Discord.Unity
             _currentStatus = Status.Connected;
         }
 
+        public void RegisterBot(BotClient bot)
+        {
+            discordBot = bot;
+        }
+
         public async void ProcessReceive()
         {
+            var buffer = new Memory<byte>(new byte[PacketManager.MAX_BUFFER_SIZE]);
+
             while (_stream.DataAvailable)
             {
-                int bytes = await _stream.ReadAsync(_streamBuffer);
-                var packet = _packetManager.UnpackPacket(_streamBuffer,bytes);
-                if(packet != null)
-                    ProcessPacket(packet);
+                int bytes = await _stream.ReadAtLeastAsync(buffer, PacketManager.MAX_BUFFER_SIZE);
+
+                try
+                {
+                    var packet = _packetManager.UnpackPacket(buffer.ToArray(), bytes);
+                    if (packet != null)
+                        ProcessPacket(packet);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error unpacking packed: {ex.Message}");
+                    Console.WriteLine($"Flushing stream of {_tcp.Client.RemoteEndPoint}");
+
+                    await _stream.FlushAsync();
+                } 
             }
         }
 
-        private void ProcessPacket(Packet packet)
+        private async void ProcessPacket(Packet packet)
         {
             _waitCounter = 0;
             if(_pingId != Guid.Empty)
@@ -94,6 +117,11 @@ namespace APG.Discord.Unity
                     Commands = codeRequest.Commands;
 
                     Send(new CodeSend{ID = this.Guid});
+                    break;
+
+                case nameof(Screenshoot):
+                    var screenShoot = packet.GetData<Screenshoot>();
+                    await discordBot.SendScreenshoot(screenShoot);
                     break;
             }
         }
