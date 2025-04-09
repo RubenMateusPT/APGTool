@@ -10,6 +10,9 @@ namespace APG.Common.Commands
     [Serializable]
     public class Command
     {
+        [JsonIgnore] private Guid id;
+        [JsonIgnore] public Guid ID { get => id; }
+
         public string Name;
 
         public bool IsRequestFromGame = false;
@@ -25,6 +28,11 @@ namespace APG.Common.Commands
 
         [JsonIgnore]
         private DateTime lastTimeIssued = DateTime.Now;
+
+        public Command()
+        {
+            id = Guid.NewGuid();
+        }
 
         public bool HasFinishedCooldown(out double timeRemaining)
         {
@@ -52,12 +60,12 @@ namespace APG.Common.Commands
         public ParameterType Type;
         public bool IsRequired = false;
         public string DefaultValue;
+        public string Value = string.Empty;
 
 
-
-        public string GetString() => DefaultValue;
-        public int GetInt() => int.Parse(DefaultValue);
-        public bool GetBool() => bool.Parse(DefaultValue);
+        public string GetString() => Value;
+        public int GetInt() => int.Parse(Value);
+        public bool GetBool() => bool.Parse(Value);
 
         public bool IsSameType(string value)
         {

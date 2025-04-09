@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -15,6 +16,7 @@ namespace APG.Unity
             wnd.titleContent = new GUIContent("APG Framework Settings");
         }
 
+
         public void CreateGUI()
         {
             var settings = GetSettings();
@@ -28,7 +30,7 @@ namespace APG.Unity
                 CreateSettingsWindow(settings, root);
         }
 
-        private SettingsScriptableObject GetSettings()
+        public static SettingsScriptableObject GetSettings()
         {
             SettingsScriptableObject settings = null;
 
@@ -47,7 +49,7 @@ namespace APG.Unity
             return settings;
         }
 
-        private SettingsScriptableObject CreateSettings()
+        private static SettingsScriptableObject CreateSettings()
         {
             var settings = ScriptableObject.CreateInstance<SettingsScriptableObject>();
             AssetDatabase.CreateAsset(settings, SettingsScriptableObject.ASSET_PATH);
@@ -84,7 +86,19 @@ namespace APG.Unity
             foreach (var propertyField in insp.Query<PropertyField>().ToList())
             {
                 propertyField.Bind(serialized);
+                propertyField.name = propertyField.name.Replace("PropertyField:", string.Empty);
             }
+
+            var commands = insp.Q<PropertyField>("commands");
+            commands.RegisterValueChangeCallback(e =>
+            {
+                if (EditorWindow.HasOpenInstances<APGManager_Window>())
+                {
+                    var window = GetWindow<APGManager_Window>();
+                    window.Close();
+                    APGManager_Window.Open();
+                }
+            });
 
             root.Add(insp);
         }

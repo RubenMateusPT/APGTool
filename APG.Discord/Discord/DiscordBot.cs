@@ -401,7 +401,7 @@ namespace APG.Server.Discord
                     return;
                 }
 
-                pm.DefaultValue = sc;
+                unityCommand.Parameters[i].Value = sc;
             }
 
             var user = client.Spectators[command.User.Id];

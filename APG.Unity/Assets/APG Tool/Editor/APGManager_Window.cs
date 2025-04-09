@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using APG.Common.Commands;
 using APG.Unity;
 using PlasticPipe.Certificates;
 using UnityEditor;
@@ -9,6 +13,21 @@ using UnityEngine.UIElements;
 
 public class APGManager_Window : EditorWindow
 {
+    public class SceneCommandEvents
+    {
+        public Func<Guid, string, bool> OnNameChange;
+        public Func<Guid, bool, bool> OnIsRequiredChange;
+        public Func<Guid, int, bool> OnParamsSizeChange;
+        public Func<Guid, ParameterType, bool> OnParamTypeChange;
+        public Func<bool> OnRemoved;
+    }
+    public static List<SceneCommandEvents> SceneCommands = new List<SceneCommandEvents>();
+
+    public static void OnCommandNameChange(Guid id, string name) => SceneCommands.ForEach(sc => sc.OnNameChange.Invoke(id, name));
+    public static void OnCommandIsRequiredChange(Guid id, bool value) => SceneCommands.ForEach( sc => sc.OnIsRequiredChange.Invoke(id,value));
+    public static void OnCommandParamsChange(Guid id, int numberOfParams) => SceneCommands.ForEach(sc => sc.OnParamsSizeChange.Invoke(id, numberOfParams));
+    public static void OnCommandParamTypeChange(Guid id, ParameterType paramType) => SceneCommands.ForEach(sc => sc.OnParamTypeChange.Invoke(id, paramType));
+
     private VisualElement _root;
     private APGManager _apgManager;
 
@@ -16,6 +35,7 @@ public class APGManager_Window : EditorWindow
     [MenuItem("Audience Participation Game Framework/Scene Commands")]
     public static void Open()
     {
+        SceneCommands.Clear();
         APGManager_Window wnd = GetWindow<APGManager_Window>();
         wnd.titleContent = new GUIContent($"\"{SceneManager.GetActiveScene().name}\" - Scene Commands");
     }
@@ -103,10 +123,32 @@ public class APGManager_Window : EditorWindow
         foreach (var propertyField in insp.Query<PropertyField>().ToList())
         {
             propertyField.Bind(serialized);
+            propertyField.name = propertyField.name.Replace("PropertyField:", string.Empty);
         }
 
-        insp.Query<PropertyField>().Last().style.height = new StyleLength(Length.Auto());
+        var settings = Settings_Window.GetSettings();
+        var sceneCommands = insp.Q<PropertyField>("sceneCommands");
+
+        if (settings.Commands.Length <= 0)
+        {
+            insp.Remove(sceneCommands);
+            var createCommands = new Button(() =>
+            {
+                Settings_Window.Open();
+            });
+            createCommands.text = "No commands available!\nPlease create some first";
+            insp.Add(createCommands);
+        }
+        else
+        {
+            sceneCommands.RegisterValueChangeCallback(e =>
+            {
+
+                SceneCommands.RemoveAll(sc => sc.OnRemoved.Invoke());
+            });
+        }
 
         _root.Add(insp);
     }
+
 }

@@ -24,7 +24,7 @@ namespace APG.Unity
         [Header("Commands Settings")]
         [SerializeField] private char commandDelimiter;
         public char CommandDelimiter => commandDelimiter;
-        [SerializeField] private Command[] commands;
+        [SerializeField] private Command[] commands = Array.Empty<Command>();
         public Command[] Commands => commands;
 
         public void UseDefaultValues()

@@ -128,11 +128,14 @@ namespace APG.Unity
                 return;
             }
 
-            if (_networkManager.IsApgEnabled) //Online
-            {
-                var settingsCommand = _settings.Commands.First(c => c.Name == command.commandName);
-                string message = settingsCommand.RequestMessage;
+            var settingsCommand = _settings.Commands.First(c => c.Name == command.commandName);
 
+            if (!settingsCommand.IsRequestFromGame)
+                return;
+
+            if (_networkManager != null && _networkManager.IsApgEnabled) //Online
+            {
+                string message = settingsCommand.RequestMessage;
                 if (!string.IsNullOrEmpty(requiredValue))
                     message += $"\nUse value: {requiredValue}";
 
@@ -152,7 +155,7 @@ namespace APG.Unity
 
         public void SendScreenShoot(string messageToSend)
         {
-            if(_networkManager.IsApgEnabled)
+            if(_networkManager != null && _networkManager.IsApgEnabled)
                 StartCoroutine(Screenshoot(messageToSend));
         }
 
