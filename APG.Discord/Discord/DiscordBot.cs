@@ -358,10 +358,13 @@ namespace APG.Server.Discord
                 return;
             }
 
-            if(!unityCommand.HasFinishedCooldown(out var timeRemaining))
+            if (unityCommand.HasCooldown)
             {
-                await command.RespondAsync($"Sorry command is in cooldown! Time Remaining: {((int) timeRemaining) + 1}");
-                return;
+                if (!unityCommand.HasFinishedCooldown(out var timeRemaining))
+                {
+                    await command.RespondAsync($"Sorry command is in cooldown! Time Remaining: {((int)timeRemaining) + 1}");
+                    return;
+                }
             }
 
             for (int i = 0; i < unityCommand.Parameters.Length; i++)
