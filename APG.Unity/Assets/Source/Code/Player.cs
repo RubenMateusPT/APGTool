@@ -94,14 +94,14 @@ public class Player : MonoBehaviour
         {
             collision.gameObject.SetActive(false);
             doorrequestText.SetActive(true);
+            gameManager.AskForKeycode();
         }
 
         if (collision.gameObject.tag == "Goal")
         {
             gameManager.EndGame(true);
-            OnEndGame.Invoke();
         }
     }
 
-    [SerializeField] private UnityEvent OnEndGame = new UnityEvent();
+    [SerializeField] private UnityEvent askForDoorCode = new UnityEvent();
 }

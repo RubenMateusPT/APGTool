@@ -105,6 +105,8 @@ public class APGManager_Window : EditorWindow
             propertyField.Bind(serialized);
         }
 
+        insp.Query<PropertyField>().Last().style.height = new StyleLength(Length.Auto());
+
         _root.Add(insp);
     }
 }

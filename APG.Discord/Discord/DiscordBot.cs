@@ -4,14 +4,15 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using APG.Common.Commands;
 using APG.Common.Discord;
 using APG.Common.Packets.Types;
 using APG.Discord.Server;
-using APG.Server.Discord.Commands;
 using Discord;
 using Discord.Net;
 using Discord.WebSocket;
 using Newtonsoft.Json;
+using Command = APG.Server.Discord.Commands.Command;
 using Image = System.Drawing.Image;
 
 namespace APG.Server.Discord
@@ -193,11 +194,30 @@ namespace APG.Server.Discord
                 }
             );
 
-            string commandsList = string.Empty;
+            string commandsList = "```\nAvailable Commands\n" +
+                                  $"Param Delimiter: {unityClient.CommandDelimiter}\n\n";
             foreach (var unityCommand in unityClient.Commands)
             {
-                commandsList += $"/{Command.SEND_GAME_COMMAND} {unityCommand.Name}\n";
+                string commandText = $"- /{Command.SEND_GAME_COMMAND} {unityCommand.Name}\n";
+
+                if (unityCommand.Parameters.Length > 0)
+                {
+                    int i = 1;
+                    foreach (var parameter in unityCommand.Parameters)
+                    {
+                        commandText += $" - Param {i}:\n" +
+                                       $"  - Name: {parameter.Name}\n";
+                        commandText += $"   - Type: {parameter.Type.ToString()}\n" +
+                                       $"   - Is Required:{parameter.IsRequired}\n";
+                        i++;
+                    }
+                }
+
+                commandText += "\n";
+                commandsList += commandText;
             }
+
+            commandsList += "```";
             var commandsMessage = await chatChannel.SendMessageAsync(commandsList);
             await commandsMessage.PinAsync();
 
@@ -316,12 +336,72 @@ namespace APG.Server.Discord
                 return;
             }
 
+            for (int i = 0; i < splitCommand.Length; i++)
+            {
+                var sc = splitCommand[i];
+                sc = sc.TrimStart();
+                sc = sc.TrimEnd();
+                splitCommand[i] = sc;
+            }
+
             var unityCommand = unity.Commands.FirstOrDefault(c => c.Name.ToUpperInvariant() == splitCommand[0].ToUpperInvariant(), null);
 
             if (unityCommand == null)
             {
-                await command.RespondAsync("No command found for game. Is it correctly written?");
+                await command.RespondAsync("No command found for game. Is name correctly written?");
                 return;
+            }
+
+            if (splitCommand.Length - 1 < unityCommand.Parameters.Where(p => p.IsRequired).Count())
+            {
+                await command.RespondAsync("Not enough parameters!");
+                return;
+            }
+
+            if(!unityCommand.HasFinishedCooldown(out var timeRemaining))
+            {
+                await command.RespondAsync($"Sorry command is in cooldown! Time Remaining: {((int) timeRemaining) + 1}");
+                return;
+            }
+
+            for (int i = 0; i < unityCommand.Parameters.Length; i++)
+            {
+                var sc = string.Empty;
+                var pm = unityCommand.Parameters[i];
+
+                if (pm.IsRequired) //This parameter is required!
+                {
+                    if (i + 1 >= splitCommand.Length) // Parameter has not given
+                    {
+                        await command.RespondAsync($"Missing Required Parameter: {pm.Name}");
+                        return;
+                    }
+                    else if (string.IsNullOrEmpty(splitCommand[i + 1])) // Parameter is empty
+                    {
+                        await command.RespondAsync($"Missing Required Parameter: {pm.Name}");
+                        return;
+                    }
+                    else 
+                        sc = splitCommand[i + 1];
+                }
+                else //This parameter is not required
+                {
+                    if (i + 1 >= splitCommand.Length) //Parameter not given
+                        sc = pm.DefaultValue;
+                    else if (string.IsNullOrEmpty(splitCommand[i + 1])) //Empty parameter
+                        sc = pm.DefaultValue;
+                    else
+                        sc = splitCommand[i + 1];
+                }
+
+
+                if (!pm.IsSameType(sc))
+                {
+                    await command.RespondAsync($"Invalid Parameter! Parameter {pm.Name} needs to be of type {pm.Type.ToString()}");
+                    return;
+                }
+
+                pm.DefaultValue = sc;
             }
 
             var user = client.Spectators[command.User.Id];
@@ -340,7 +420,9 @@ namespace APG.Server.Discord
             if (!_instances.ContainsKey(instanceKey))
                 return null;
 
-            return _instances[instanceKey];
+            var instance = _instances[instanceKey];
+
+            return instance;
         }
     }
 }

@@ -1,5 +1,7 @@
 using System.Collections;
+using APG.Unity;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,6 +14,8 @@ public class GameManager : MonoBehaviour
     public GameObject doorrequestText;
     public Transform door;
     private bool isdooropen = false;
+
+    private GUID? _keycode = null;
 
     private void Awake()
     {
@@ -36,9 +40,18 @@ public class GameManager : MonoBehaviour
         gameEnded = true;
 
         if (won)
+        {
             endText.text = "YOU WIN!";
+            var apgManager = FindAnyObjectByType<APGManager>();
+            apgManager.SendScreenShoot($"The player has won thanks to you!");
+        }
         else
+        {
             endText.text = "GAME OVER!";
+            var apgManager = FindAnyObjectByType<APGManager>();
+            apgManager.SendScreenShoot($"The player has lost, maybe you can help him win?");
+        }
+            
 
         endText.gameObject.SetActive(true);
 
@@ -78,12 +91,37 @@ public class GameManager : MonoBehaviour
 
     public void OpenDoor()
     {
+        if (!doorrequestText.gameObject.activeSelf)
+            return;
+
         if (gameEnded || isdooropen)
             return;
 
         isdooropen = true;
         doorrequestText.SetActive(false);
         StartCoroutine(AnimateDoorOpening());
+    }
+
+    public void AskForKeycode()
+    {
+        _keycode = GUID.Generate();
+        var apg = FindFirstObjectByType<APGManager>();
+        apg.SendRequest("Lower Bridge", _keycode.ToString());
+    }
+
+    public void OpenDoorWithKeycode(string keycode)
+    {
+        if (keycode == "Master Key")
+        {
+            OpenDoor();
+            return;
+        }
+
+        if (GUID.TryParse(keycode, out var guid))
+        {
+            if(guid == _keycode)
+                OpenDoor();
+        }
     }
 
     private IEnumerator AnimateDoorOpening()
@@ -99,7 +137,7 @@ public class GameManager : MonoBehaviour
     {
         if(gameEnded && Input.GetKeyDown(KeyCode.R))
         {
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene(1);
         }
     }
 }

@@ -33,6 +33,7 @@ public class NetworkManager : MonoBehaviour
     private void Awake()
     {
         DontDestroyOnLoad(this.gameObject);
+        IsApgEnabled = false;
     }
 
     private async void Update()
@@ -54,24 +55,51 @@ public class NetworkManager : MonoBehaviour
         while (_stream.DataAvailable)
         {
             int received = await _stream.ReadAsync(_streamBuffer, 0, PacketManager.MAX_BUFFER_SIZE - totalReceived);
-            totalReceived += received;
 
-            if (totalReceived < PacketManager.MAX_BUFFER_SIZE)
+            if (received == PacketManager.MAX_BUFFER_SIZE || totalReceived == PacketManager.MAX_BUFFER_SIZE)
             {
-                Array.Copy(buffer,0,_streamBuffer,totalReceived , received);
-                continue;
-            }
-            else if (totalReceived == PacketManager.MAX_BUFFER_SIZE)
-            {
-                var packet = _packetManager.UnpackPacket(_streamBuffer, totalReceived);
-                if (packet != null)
-                    ProcessPacket(packet);
-
                 totalReceived = 0;
+
+                try
+                {
+                    var packet = _packetManager.UnpackPacket(_streamBuffer, PacketManager.MAX_BUFFER_SIZE);
+                    if (packet != null)
+                        ProcessPacket(packet);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Oops Invalid Packet - {ex.Message}");
+                    _stream.Flush();
+                    Send(new Pong { ID = Guid.NewGuid() });
+                }
+            }
+            else if (received < PacketManager.MAX_BUFFER_SIZE)
+            {
+                Debug.LogWarning("Stream Buffer isn't full yet!");
+                Array.Copy(buffer, 0, _streamBuffer, totalReceived, received);
+                totalReceived += received;
+
+                if (totalReceived == PacketManager.MAX_BUFFER_SIZE)
+                {
+                    totalReceived = 0;
+
+                    try
+                    {
+                        var packet = _packetManager.UnpackPacket(_streamBuffer, PacketManager.MAX_BUFFER_SIZE);
+                        if (packet != null)
+                            ProcessPacket(packet);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"Oops Invalid Packet - {ex.Message}");
+                        _stream.Flush();
+                        Send(new Pong { ID = Guid.NewGuid() });
+                    }
+                }
             }
             else
             {
-                Debug.Log($"Total Bytes exceeds array!");
+                Debug.Log($"Something really bad happened, Flushing Network Stream");
                 totalReceived = 0;
                 _stream.Flush();
                 Send(new Pong { ID = Guid.NewGuid() });

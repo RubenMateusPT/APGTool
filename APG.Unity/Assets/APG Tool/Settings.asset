@@ -14,10 +14,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ip: 127.0.0.1
   port: 8000
-  gameName: APG.Unity - v1.0
+  gameName: APG Test
   commandDelimiter: 59
   commands:
   - Name: Give Life
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 5
+    SendScreenshot: 0
+    ScreenshotDelay: 0
+    Parameters: []
   - Name: Kill Enemy
-  - Name: Kill Player
-  - Name: Open Door
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 10
+    SendScreenshot: 0
+    ScreenshotDelay: 1
+    Parameters:
+    - Name: Enemy ID
+      Type: 1
+      IsRequired: 0
+      DefaultValue: -1
+  - Name: Lower Bridge
+    IsRequestFromGame: 1
+    RequestMessage: Please someone help lower the bridge!
+    HasCooldown: 1
+    CooldownTime: 0
+    SendScreenshot: 1
+    ScreenshotDelay: 1
+    Parameters:
+    - Name: Keycode
+      Type: 0
+      IsRequired: 1
+      DefaultValue: 

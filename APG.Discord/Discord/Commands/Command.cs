@@ -13,8 +13,8 @@ namespace APG.Server.Discord.Commands
         public const string DELETE_CATEGORY = "delete-category";
 
         //Game Related
-        public const string HOST_JOIN = "create-game";
-        public const string CLIENT_JOIN = "join-game";
+        public const string HOST_JOIN = "create";
+        public const string CLIENT_JOIN = "join";
         public const string SEND_GAME_COMMAND = "command";
 
     }
