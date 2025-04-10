@@ -54,17 +54,16 @@ public class NetworkManager : MonoBehaviour
 
         while (_stream.DataAvailable)
         {
-            int received = await _stream.ReadAsync(_streamBuffer, 0, PacketManager.MAX_BUFFER_SIZE - totalReceived);
+            int received = await _stream.ReadAsync(buffer, 0, PacketManager.MAX_BUFFER_SIZE - totalReceived);
 
-            if (received == PacketManager.MAX_BUFFER_SIZE || totalReceived == PacketManager.MAX_BUFFER_SIZE)
+            if (received == PacketManager.MAX_BUFFER_SIZE || totalReceived == PacketManager.MAX_BUFFER_SIZE) // No issues on packet
             {
                 totalReceived = 0;
 
+                Packet packet = null;
                 try
                 {
-                    var packet = _packetManager.UnpackPacket(_streamBuffer, PacketManager.MAX_BUFFER_SIZE);
-                    if (packet != null)
-                        ProcessPacket(packet);
+                    packet = _packetManager.UnpackPacket(buffer, PacketManager.MAX_BUFFER_SIZE);
                 }
                 catch (Exception ex)
                 {
@@ -72,22 +71,25 @@ public class NetworkManager : MonoBehaviour
                     _stream.Flush();
                     Send(new Pong { ID = Guid.NewGuid() });
                 }
+
+                if (packet != null)
+                    ProcessPacket(packet);
             }
-            else if (received < PacketManager.MAX_BUFFER_SIZE)
+            else if (received < PacketManager.MAX_BUFFER_SIZE) // Issues on packet
             {
-                Debug.LogWarning("Stream Buffer isn't full yet!");
+                //Debug.LogWarning("Stream Buffer isn't full yet!");
                 Array.Copy(buffer, 0, _streamBuffer, totalReceived, received);
                 totalReceived += received;
 
                 if (totalReceived == PacketManager.MAX_BUFFER_SIZE)
                 {
+                    //Debug.Log("Packet is splitted");
                     totalReceived = 0;
-
+                    Packet packet = null;
                     try
                     {
-                        var packet = _packetManager.UnpackPacket(_streamBuffer, PacketManager.MAX_BUFFER_SIZE);
-                        if (packet != null)
-                            ProcessPacket(packet);
+                        packet = _packetManager.UnpackPacket(_streamBuffer, PacketManager.MAX_BUFFER_SIZE);
+
                     }
                     catch (Exception ex)
                     {
@@ -95,6 +97,9 @@ public class NetworkManager : MonoBehaviour
                         _stream.Flush();
                         Send(new Pong { ID = Guid.NewGuid() });
                     }
+
+                    if (packet != null)
+                        ProcessPacket(packet);
                 }
             }
             else

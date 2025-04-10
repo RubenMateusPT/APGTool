@@ -22,7 +22,7 @@ MonoBehaviour:
     RequestMessage: 
     HasCooldown: 1
     CooldownTime: 5
-    SendScreenshot: 1
+    SendScreenshot: 0
     ScreenshotDelay: 0
     Parameters: []
   - Name: Kill Enemy

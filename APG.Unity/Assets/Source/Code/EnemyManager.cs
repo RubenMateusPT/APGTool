@@ -17,7 +17,6 @@ public class EnemyManager : MonoBehaviour
     {
         if (id < 0)
         {
-            Debug.Log("Killed random enemy");
             KillRandomEnemy();
         }
         else
