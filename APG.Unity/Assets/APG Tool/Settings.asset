@@ -20,7 +20,7 @@ MonoBehaviour:
   - Name: Give Life
     IsRequestFromGame: 0
     RequestMessage: 
-    HasCooldown: 1
+    HasCooldown: 0
     CooldownTime: 5
     SendScreenshot: 0
     ScreenshotDelay: 0
@@ -51,3 +51,11 @@ MonoBehaviour:
       IsRequired: 1
       DefaultValue: 
       Value: 
+  - Name: Delete Platform
+    IsRequestFromGame: 0
+    RequestMessage: Someone help the player!
+    HasCooldown: 0
+    CooldownTime: 0
+    SendScreenshot: 1
+    ScreenshotDelay: 1
+    Parameters: []

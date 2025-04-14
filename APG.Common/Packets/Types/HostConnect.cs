@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace APG.Common.Packets.Types
+﻿namespace APG.Common.Packets.Types
 {
     public class HostConnect
     {

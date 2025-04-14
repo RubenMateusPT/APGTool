@@ -3819,6 +3819,38 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].commandName
+      value: Delete Platform
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].commandIndex
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onOffline.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceive.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceiveString.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onOffline.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
       propertyPath: sceneCommands.Array.data[0].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1959543959}
@@ -3827,13 +3859,73 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1132379059}
     - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onOffline.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1132379059}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 657464720}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
       propertyPath: sceneCommands.Array.data[1].onReceiveInt.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 188157359}
     - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onOffline.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onOffline.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OpenDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetActive
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
       propertyPath: sceneCommands.Array.data[2].onReceiveString.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1132379059}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceiveString.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1132379059}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceiveString.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceiveString.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OpenDoorWithKeycode
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onOffline.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GameManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UnityEngine.GameObject, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceiveString.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GameManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onOffline.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 7569917789249948761, guid: 888e51ccff6dcd8429b7680d22441e30, type: 3}
+      propertyPath: sceneCommands.Array.data[3].onReceiveString.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

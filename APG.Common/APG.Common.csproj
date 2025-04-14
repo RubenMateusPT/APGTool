@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
-    <BaseOutputPath>$(SolutionDir)APG.Unity\Assets\APG Tool\Common</BaseOutputPath>
+    <BaseOutputPath>$(SolutionDir)APG.Unity\Assets\APG Tool\External\APG Library</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

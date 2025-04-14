@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using APG.Common.Commands;
+﻿using APG.Common.Commands;
 
 namespace APG.Common.Packets.Types
 {
