@@ -37,6 +37,7 @@ namespace APG.Unity.Managers
 
         private void Awake()
         {
+            Application.runInBackground = true;
             DontDestroyOnLoad(this.gameObject);
             IsApgEnabled = false;
         }
@@ -229,7 +230,12 @@ namespace APG.Unity.Managers
                 return;
 
             //Debug.LogWarning("Closing Network Connection");
-            _stream.Write(_packetManager.PackPacket(new Packet(new CloseConnection(){Reason = "Host Closed game"})).First());
+            try
+            {
+                _stream.Write(_packetManager
+                    .PackPacket(new Packet(new CloseConnection() { Reason = "Host Closed game" })).First());
+            }
+            catch{}
         }
     }
 }
