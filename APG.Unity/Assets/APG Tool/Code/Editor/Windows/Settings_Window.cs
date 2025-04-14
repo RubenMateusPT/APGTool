@@ -85,6 +85,10 @@ namespace APG.Unity.Editor.Windows
         private void CreateSettingsWindow(SettingsScriptableObject settings, VisualElement root)
         {
             var serialized = new SerializedObject(settings);
+            if (string.IsNullOrEmpty(serialized.FindProperty("gameName").stringValue))
+                serialized.FindProperty("gameName").stringValue = $"{Application.productName} - v{Application.version}";
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+
             var insp = new VisualElement();
             InspectorElement.FillDefaultInspector(insp,serialized,null);
 
