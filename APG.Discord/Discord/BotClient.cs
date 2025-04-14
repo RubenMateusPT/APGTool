@@ -48,5 +48,10 @@ namespace APG.Server.Discord
                 }
             }
         }
+
+        public async Task Delete()
+        {
+            await Unity.CloseConnection();
+        }
     }
 }

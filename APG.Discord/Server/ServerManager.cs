@@ -14,6 +14,8 @@ namespace APG.Discord.Server
         TcpListener listener;
         Dictionary<Guid,Unity.UnityClient> clients = new Dictionary<Guid, UnityClient>();
 
+
+
         public ServerManager()
         {
             listener = new TcpListener(new IPEndPoint(IPAddress.Any, 8000));

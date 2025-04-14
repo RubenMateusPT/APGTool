@@ -8,6 +8,7 @@ using APG.Common.Commands;
 using APG.Common.Discord;
 using APG.Common.Packets.Types;
 using APG.Discord.Server;
+using APG.Discord.Unity;
 using Discord;
 using Discord.Net;
 using Discord.WebSocket;
@@ -117,6 +118,11 @@ namespace APG.Server.Discord
                     foreach (var channel in guild.Channels)
                     {
                         await channel.DeleteAsync();
+                    }
+
+                    foreach (var instance in _instances.Where(i => i.Key.Item1 == guild.Id))
+                    {
+                        await instance.Value.Delete();
                     }
 
                     await guild.CreateTextChannelAsync("main");
@@ -239,12 +245,38 @@ namespace APG.Server.Discord
             //Save
             Tuple<ulong, ulong> instanceID = new Tuple<ulong, ulong>(guild.Id, chatChannel.Id);
             BotClient client = new BotClient(guild.Id, categoryChannel.Id, chatChannel.Id, guildUser.Id, this, unityClient);
+            unityClient.OnStatusChange += UnityClient_OnStatusChange;
             _instances.Add(instanceID, client);
 
             await command.Channel.SendMessageAsync($"{guildUser.DisplayName} is hosting a game session of \"{unityClient.GameName}\". Join him by using the \"/join @{guildUser.DisplayName}\" command!");
 
-            unityClient.Send(new HostConnect());
+            unityClient.Send(new HostConnect(true));
         }
+
+        private async void UnityClient_OnStatusChange(UnityClient unityClient, UnityClient.Status status)
+        {
+            if (status == UnityClient.Status.Disposed)
+            {
+                var botClient = unityClient.DiscordBot;
+                _instances.Remove(new Tuple<ulong, ulong>(botClient.GuildID, botClient.ChatID));
+
+                var guild = _client.GetGuild(botClient.GuildID);
+                try
+                {
+                    var categoryChannel = guild.GetCategoryChannel(botClient.CategoryID);
+                    foreach (var spectator in botClient.Spectators.Keys)
+                    {
+                        await categoryChannel.RemovePermissionOverwriteAsync(guild.GetUser(spectator));
+                    }
+
+                    await categoryChannel.RemovePermissionOverwriteAsync(guild.GetUser(botClient.HostId));
+                }
+                catch { }
+
+                unityClient.OnStatusChange -= UnityClient_OnStatusChange;
+            }
+        }
+
         private async Task ClientJoin(SocketSlashCommand command)
         {
             var guild = _client.GetGuild(command.GuildId.Value);
@@ -263,7 +295,8 @@ namespace APG.Server.Discord
             var instance =
                 _instances.FirstOrDefault(i =>
                     i.Key.Item1 == command.GuildId &&
-                    i.Value.HostId == host.Id).Value;
+                    i.Value.HostId == host.Id &&
+                    i.Value.Unity.CurrentStatus == UnityClient.Status.Connected).Value;
 
             if (instance == null)
             {
@@ -322,6 +355,12 @@ namespace APG.Server.Discord
             if (client.HostId == command.User.Id)
             {
                 await command.RespondAsync("No cheating host!");
+                return;
+            }
+
+            if (!client.Spectators.ContainsKey(command.User.Id))
+            {
+                await command.RespondAsync("You have to join the host first! Before you can start interacting with it!");
                 return;
             }
 

@@ -9,20 +9,16 @@ namespace APG.Unity.Sample.UI
     {
 
         [SerializeField] private TMP_Text statusText;
+        [SerializeField] private TMP_InputField codeField;
 
-        private NetworkManager _networkManager;
-
-        public TMP_InputField codeField;
-
-        private void Awake()
-        {
-            _networkManager = FindFirstObjectByType<NetworkManager>();
-            _networkManager.OnStatusChange += UpdateStatusMessage;
-        }
-
-        private void UpdateStatusMessage(string msg)
+        public void UpdateStatusMessage(string msg)
         {
             statusText.text = msg;
+        }
+
+        public void UpdateHostCode(string code)
+        {
+            codeField.text = code;
         }
 
         public void CopyToClipboard()

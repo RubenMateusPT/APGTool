@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using APG.Common.Packets;
@@ -7,6 +8,7 @@ using APG.Common.Packets.Types;
 using APG.Unity.Sample.UI;
 using APG.Unity.ScriptableObjects;
 using UnityEngine;
+using UnityEngine.Events;
 using Ping = APG.Common.Packets.Types.Ping;
 
 namespace APG.Unity.Managers
@@ -24,7 +26,11 @@ namespace APG.Unity.Managers
         private PacketManager _packetManager = new PacketManager();
         private Queue<Packet> _sendPacketsQueue = new Queue<Packet>();
 
-        public Action<string> OnStatusChange;
+        [SerializeField] 
+        private UnityEvent<string> OnStatusChange = new UnityEvent<string>();
+
+        [SerializeField] 
+        private UnityEvent<string> OnCodeReceive = new UnityEvent<string>();
 
         public bool IsApgEnabled { get; private set; } = false;
         private APGManager _currentAPGManager = null;
@@ -124,12 +130,29 @@ namespace APG.Unity.Managers
                 case nameof(CodeSend):
                     var codeSend = packet.GetData<CodeSend>();
                     OnStatusChange.Invoke($"Got host code!\n Waiting for host to connect...");
-                    FindFirstObjectByType<MainMenuUI>().codeField.text = codeSend.ID.ToString();
+                    OnCodeReceive.Invoke(codeSend.ID.ToString());
                     break;
 
+
                 case nameof(HostConnect):
-                    OnStatusChange.Invoke("Host connected!\n You can start the game now!");
-                    IsApgEnabled = true;
+                    var hostConnect = packet.GetData<HostConnect>();
+                    if (hostConnect.Success)
+                    {
+                        OnStatusChange.Invoke("Host connected!\n You can start the game now!");
+                        IsApgEnabled = true;
+                    }
+                    else
+                    {
+                        OnStatusChange.Invoke("Timeout! Failed to connect in time!");
+                        OnCodeReceive.Invoke(String.Empty);
+                        IsApgEnabled = true;
+                    }
+                    break;
+
+                case nameof(CloseConnection):
+                    var closeConnection = packet.GetData<CloseConnection>();
+                    IsApgEnabled = false;
+                    OnStatusChange.Invoke(closeConnection.Reason);
                     break;
 
                 case nameof(GameCommand):
@@ -160,7 +183,16 @@ namespace APG.Unity.Managers
         {
             OnStatusChange.Invoke("Connecting to Discord Bot @ 127.0.0.1:8000");
             _tcp = new TcpClient();
-            await _tcp.ConnectAsync(settings.IP, settings.Port);
+            try
+            {
+                await _tcp.ConnectAsync(settings.IP, settings.Port);
+            }
+            catch
+            {
+                OnStatusChange.Invoke("Unable to reach server. Is it online?\nTry Again...");
+                OnCodeReceive.Invoke(String.Empty);
+                return;
+            }
 
             if (!_tcp.Connected)
             {
@@ -189,6 +221,15 @@ namespace APG.Unity.Managers
         public void RegisterSceneManager(APGManager apgManager)
         {
             _currentAPGManager = apgManager;
+        }
+
+        private void OnApplicationQuit()
+        {
+            if (!IsApgEnabled)
+                return;
+
+            //Debug.LogWarning("Closing Network Connection");
+            _stream.Write(_packetManager.PackPacket(new Packet(new CloseConnection(){Reason = "Host Closed game"})).First());
         }
     }
 }
