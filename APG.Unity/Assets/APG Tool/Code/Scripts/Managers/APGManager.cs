@@ -36,7 +36,8 @@ namespace APG.Unity.Managers
 
            _settings = AssetDatabase.LoadAssetAtPath<SettingsScriptableObject>(SettingsScriptableObject.ASSET_PATH);
 
-            discordUser.SetActive(false);
+           if(discordUser != null) 
+               discordUser.SetActive(false);
         }
 
         private void Start()
@@ -56,7 +57,7 @@ namespace APG.Unity.Managers
             if (execute == null)
                 return;
 
-            if (command.DiscordUser != null)
+            if (command.DiscordUser != null && discordUser != null)
             {
                 discordText.text = $"{command.DiscordUser.Username} did {command.Command.Name}";
                 discordSprite.sprite = ConvertByteImageToSprite(command.DiscordUser.ImageBytes);

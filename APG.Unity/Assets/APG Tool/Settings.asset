@@ -14,48 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ip: 127.0.0.1
   port: 8000
-  gameName: APG.Unity - v1.0
+  gameName: 
   commandDelimiter: 59
-  commands:
-  - Name: Give Life
-    IsRequestFromGame: 0
-    RequestMessage: 
-    HasCooldown: 0
-    CooldownTime: 5
-    SendScreenshot: 0
-    ScreenshotDelay: 0
-    Parameters: []
-  - Name: Kill Enemy
-    IsRequestFromGame: 0
-    RequestMessage: 
-    HasCooldown: 1
-    CooldownTime: 5
-    SendScreenshot: 1
-    ScreenshotDelay: 1
-    Parameters:
-    - Name: Enemy ID
-      Type: 1
-      IsRequired: 0
-      DefaultValue: -1
-      Value: 
-  - Name: Lower Bridge
-    IsRequestFromGame: 1
-    RequestMessage: Someone help the player!
-    HasCooldown: 0
-    CooldownTime: 0
-    SendScreenshot: 1
-    ScreenshotDelay: 1
-    Parameters:
-    - Name: Key
-      Type: 0
-      IsRequired: 1
-      DefaultValue: 
-      Value: 
-  - Name: Delete Platform
-    IsRequestFromGame: 0
-    RequestMessage: Someone help the player!
-    HasCooldown: 0
-    CooldownTime: 0
-    SendScreenshot: 1
-    ScreenshotDelay: 1
-    Parameters: []
+  commands: []
