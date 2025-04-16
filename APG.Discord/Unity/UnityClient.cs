@@ -40,7 +40,7 @@ namespace APG.Discord.Unity
         }
 
         private double _waitCounter = 0;
-        private double _maxWaitTime = TimeSpan.FromSeconds(10).TotalMilliseconds;
+        private double _maxWaitTime = TimeSpan.FromSeconds(30).TotalMilliseconds;
         private Guid _pingId = Guid.Empty;
 
         private bool _isReceiving = false;
