@@ -13,7 +13,8 @@ public class BridgeManager : MonoBehaviour
     private bool _isLowered;
     private float _currentRotation;
 
-    private int _bridgeCode;
+    [SerializeField]
+    private int _bridgeCode = 420;
 
     private void Start()
     {

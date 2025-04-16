@@ -189,7 +189,7 @@ namespace APG.Unity.Managers
             {
                 await _tcp.ConnectAsync(settings.IP, settings.Port);
             }
-            catch (Exception ex)
+            catch
             {
                 OnStatusChange.Invoke("Unable to reach server. Is it online?\nTry Again...");
                 OnCodeReceive.Invoke(String.Empty);
