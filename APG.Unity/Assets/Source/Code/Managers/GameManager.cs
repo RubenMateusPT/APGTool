@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using APG.Unity.Managers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -30,14 +32,28 @@ public class GameManager : MonoBehaviour
 
     public void WinGame()
     {
+        if (_hasEnded)
+            return;
+
         _ui.ShowGameOver(true);
         GameOver();
     }
 
     public void LoseGame()
     {
+        if (_hasEnded)
+            return;
+
         _ui.ShowGameOver(false);
+        //APG Send Screenshot
         GameOver();
+    }
+
+    public void ShowUserMessage(string message)
+    {
+        if(_hasEnded)
+            return;
+        _ui.DisplayMessage(message);
     }
 
     private void GameOver()

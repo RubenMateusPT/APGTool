@@ -38,6 +38,11 @@ public class PlayerManager : MonoBehaviour
         _player.EnableControls();
     }
 
+    public void AddLife()
+    {
+        lifes++;
+    }
+
     public void KillPlayer()
     {
         _player.DisableControls();

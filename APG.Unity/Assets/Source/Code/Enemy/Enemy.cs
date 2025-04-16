@@ -14,11 +14,17 @@ public class Enemy : MonoBehaviour
     private float movementSpeed;
 
     private Rigidbody2D _rigidbody;
+    private BoxCollider2D _collider;
+
     private float _currentDirection;
+
+    private bool _isAlive;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
+        _collider = GetComponent<BoxCollider2D>();
+        _isAlive = true;
     }
 
     public void RandomizeDirection()
@@ -34,6 +40,9 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
+        if(!_isAlive)
+            return;
+
         CheckForGround();
         ChangeDirection();
     }
@@ -56,6 +65,9 @@ public class Enemy : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!_isAlive)
+            return;
+
         Move();
     }
 
@@ -66,6 +78,9 @@ public class Enemy : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
+        if (!_isAlive)
+            return;
+
         if (other.gameObject.CompareTag("Player"))
         {
             FindFirstObjectByType<PlayerManager>().KillPlayer();
@@ -79,5 +94,19 @@ public class Enemy : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawLine(eyes.transform.position, eyes.transform.position + Vector3.down * 1.5f);
+    }
+
+    public void Kill()
+    {
+        _isAlive = false;
+        _collider.enabled = false;
+        _rigidbody.linearVelocityX = 0;
+        _rigidbody.linearVelocityY = 0.0f;
+        _rigidbody.AddForce(
+            new Vector2(
+                _currentDirection * Random.Range(2, 4),
+                10f),
+            ForceMode2D.Impulse
+        );
     }
 }

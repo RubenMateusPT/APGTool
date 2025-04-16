@@ -33,5 +33,10 @@ namespace APG.Unity.Sample.UI
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
+
+        public void Pong()
+        {
+            Debug.Log($"Server said hi :D");
+        }
     }
 }

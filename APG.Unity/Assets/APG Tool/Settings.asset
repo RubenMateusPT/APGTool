@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ip: 127.0.0.1
   port: 8000
-  gameName: 
+  gameName: APG.Unity - v1.0
   commandDelimiter: 59
   commands: []
