@@ -183,12 +183,13 @@ namespace APG.Unity.Managers
         public async void Connect()
         {
             OnStatusChange.Invoke("Connecting to Discord Bot @ 127.0.0.1:8000");
+            await Task.Delay(TimeSpan.FromSeconds(1));
             _tcp = new TcpClient();
             try
             {
                 await _tcp.ConnectAsync(settings.IP, settings.Port);
             }
-            catch
+            catch (Exception ex)
             {
                 OnStatusChange.Invoke("Unable to reach server. Is it online?\nTry Again...");
                 OnCodeReceive.Invoke(String.Empty);
@@ -198,6 +199,7 @@ namespace APG.Unity.Managers
             if (!_tcp.Connected)
             {
                 OnStatusChange.Invoke("Failed to connect to server");
+                OnCodeReceive.Invoke(String.Empty);
                 return;
             }
 
