@@ -4873,7 +4873,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[0].commandName
-      value: Send
+      value: test
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[1].commandName
@@ -4905,7 +4905,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[0].onReceive.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[1].onOffline.m_PersistentCalls.m_Calls.Array.size
@@ -4929,7 +4929,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[0].onReceiveString.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[1].onReceiveString.m_PersistentCalls.m_Calls.Array.size
@@ -4949,7 +4949,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[0].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[1].onOffline.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -4974,7 +4974,7 @@ PrefabInstance:
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[0].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 13654517}
+      objectReference: {fileID: 237901097}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[1].onOffline.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -5041,7 +5041,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[0].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: WinGame
+      value: SetActive
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[1].onOffline.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -5125,7 +5125,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[0].onReceive.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: GameManager, Assembly-CSharp
+      value: UnityEngine.GameObject, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5538400448338349970, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: sceneCommands.Array.data[1].onOffline.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
