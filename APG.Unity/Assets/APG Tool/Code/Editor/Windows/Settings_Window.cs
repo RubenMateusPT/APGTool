@@ -54,7 +54,7 @@ namespace APG.Unity.Editor.Windows
             return settings;
         }
 
-        private static SettingsScriptableObject CreateSettings()
+        public static SettingsScriptableObject CreateSettings()
         {
             var settings = ScriptableObject.CreateInstance<SettingsScriptableObject>();
             AssetDatabase.CreateAsset(settings, SettingsScriptableObject.ASSET_PATH);

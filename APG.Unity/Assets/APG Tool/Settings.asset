@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9bd44bad5a5eab46b044ed5bd57e5da, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: 
-  ip: 127.0.0.1
-  port: 8000
+  ip: 
+  port: 0
   gameName: 
-  commandDelimiter: 59
+  commandDelimiter: 0
   commands: []

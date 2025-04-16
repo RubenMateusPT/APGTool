@@ -4668,6 +4668,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6454378456728281755, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
+      propertyPath: settings
+      value: 
+      objectReference: {fileID: 11400000, guid: 5b2ba9bbee2f3cb4ebf75929e2cfce14, type: 2}
     - target: {fileID: 8505293690694992527, guid: 17fe3f6ff0694474c976a21e7fa1c093, type: 3}
       propertyPath: m_Name
       value: === APG Scene ===

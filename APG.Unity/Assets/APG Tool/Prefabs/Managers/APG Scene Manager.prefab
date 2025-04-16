@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 897340e4eeeb26e4f833b3746fc3d67b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  settings: {fileID: 11400000, guid: 5b2ba9bbee2f3cb4ebf75929e2cfce14, type: 2}
   discordUser: {fileID: 0}
   discordText: {fileID: 0}
   discordSprite: {fileID: 0}

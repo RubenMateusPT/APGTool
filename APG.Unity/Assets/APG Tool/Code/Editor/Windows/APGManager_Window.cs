@@ -136,9 +136,32 @@ namespace APG.Unity.Editor.Windows
             }
 
             var settings = Settings_Window.GetSettings();
+            if (settings == null)
+            {
+                var createSettings = new Button(() =>
+                {
+                    var settings = Settings_Window.CreateSettings();
+                    if (settings != null)
+                    {
+                        Close();
+                        Open();
+                    }
+                });
+                createSettings.text = "No settings file found!\nPlease create one first!";
+                _root.Add(createSettings);
+                return;
+            }
+
+            var settingsField = serialized.FindProperty("settings");
+            if (settingsField.objectReferenceValue == null)
+            {
+                settingsField.objectReferenceValue = settings;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+            }
+
             var sceneCommands = insp.Q<PropertyField>("sceneCommands");
 
-            if (settings.Commands.Length <= 0)
+            if (settings != null && settings.Commands.Length <= 0)
             {
                 insp.Remove(sceneCommands);
                 var createCommands = new Button(() => { Settings_Window.Open(); });

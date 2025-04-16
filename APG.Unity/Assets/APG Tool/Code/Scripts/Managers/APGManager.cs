@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using APG.Common.Commands;
+using APG.Common.Packets;
 using APG.Common.Packets.Types;
 using APG.Unity.Commands;
 using APG.Unity.ScriptableObjects;
@@ -14,10 +15,17 @@ namespace APG.Unity.Managers
 {
     public class APGManager : MonoBehaviour
     {
+        [Header("Settings")]
+        [SerializeField]
+        [InspectorName("Settings File")]
+        private SettingsScriptableObject settings;
+
+        [Header("UI")]
         [SerializeField] private GameObject discordUser;
         [SerializeField] private TMP_Text discordText;
         [SerializeField] private Image discordSprite;
 
+        [Header("Commands")]
         [SerializeField] private SceneCommands[] sceneCommands;
 
         private NetworkManager _networkManager;
@@ -26,15 +34,20 @@ namespace APG.Unity.Managers
 
         private Coroutine _popUserCoroutine;
 
-        private SettingsScriptableObject _settings;
+        
 
         private void Awake()
         {
+            if (settings == null)
+            {
+                Debug.LogError("No Settings file provided!\nDisabling APG Manager");
+                enabled = false;
+                gameObject.SetActive(false);
+            }
+
             _networkManager = FindFirstObjectByType<NetworkManager>();
             if(_networkManager != null)
                 _networkManager.RegisterSceneManager(this);
-
-           _settings = AssetDatabase.LoadAssetAtPath<SettingsScriptableObject>(SettingsScriptableObject.ASSET_PATH);
 
            if(discordUser != null) 
                discordUser.SetActive(false);
@@ -131,7 +144,7 @@ namespace APG.Unity.Managers
                 return;
             }
 
-            var settingsCommand = _settings.Commands.First(c => c.Name == command.commandName);
+            var settingsCommand = settings.Commands.First(c => c.Name == command.commandName);
 
             if (!settingsCommand.IsRequestFromGame)
                 return;
