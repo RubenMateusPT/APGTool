@@ -41,6 +41,7 @@ public class PlayerManager : MonoBehaviour
     public void AddLife()
     {
         lifes++;
+        _ui.UpdateLifes(lifes);
     }
 
     public void KillPlayer()
