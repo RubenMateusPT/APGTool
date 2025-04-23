@@ -141,7 +141,7 @@ namespace APG.Unity.Editor.Windows
                 var createSettings = new Button(() =>
                 {
                     var settings = Settings_Window.CreateSettings();
-                    if (settings != null)
+                    if (settings != null) //Reopen Current Window
                     {
                         Close();
                         Open();
@@ -161,7 +161,7 @@ namespace APG.Unity.Editor.Windows
 
             var sceneCommands = insp.Q<PropertyField>("sceneCommands");
 
-            if (settings != null && settings.Commands.Length <= 0)
+            if (settings != null && settings.Commands.Length <= 0) //Check if commands exist in game
             {
                 insp.Remove(sceneCommands);
                 var createCommands = new Button(() => { Settings_Window.Open(); });

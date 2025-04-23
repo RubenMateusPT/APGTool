@@ -52,8 +52,6 @@ public class EnemyManager : MonoBehaviour
         enemy.Kill();
     }
 
-    //APG Complex Parameters
-
     public void KillByName(string name)
     {
         if (!string.IsNullOrEmpty(name))

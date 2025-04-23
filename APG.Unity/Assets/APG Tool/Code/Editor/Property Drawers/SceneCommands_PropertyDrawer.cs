@@ -169,6 +169,7 @@ namespace APG.Unity.Editor.PropertyDrawers
 
             property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
 
+            //Registir this Scene Command and it's callbacks
             APGManager_Window.SceneCommands.Add(new APGManager_Window.SceneCommandEvents
             {
                 OnNameChange = (guid, name) =>

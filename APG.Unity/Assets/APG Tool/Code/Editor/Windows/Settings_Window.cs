@@ -101,7 +101,7 @@ namespace APG.Unity.Editor.Windows
             var commands = insp.Q<PropertyField>("commands");
             commands.RegisterValueChangeCallback(e =>
             {
-                if (EditorWindow.HasOpenInstances<APGManager_Window>())
+                if (EditorWindow.HasOpenInstances<APGManager_Window>()) //Recreate APG Scene Commands Window
                 {
                     var window = GetWindow<APGManager_Window>();
                     window.Close();

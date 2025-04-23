@@ -70,7 +70,7 @@ namespace APG.Unity.Managers
             if (execute == null)
                 return;
 
-            if (command.DiscordUser != null && discordUser != null)
+            if (command.DiscordUser != null && discordUser != null) //Show User Pop Up if user is provided
             {
                 discordText.text = $"{command.DiscordUser.Username} did {command.Command.Name}";
                 discordSprite.sprite = ConvertByteImageToSprite(command.DiscordUser.ImageBytes);
@@ -83,7 +83,7 @@ namespace APG.Unity.Managers
             if (command.Command.SendScreenshot)
                 StartCoroutine(DelayScreenshot(command));
 
-
+            //Use the correct Unity Event based on the command parameters given
             var parameters = command.Command.Parameters;
             if(parameters.Length == 0)
                 execute.onReceive.Invoke();
