@@ -175,8 +175,12 @@ namespace APG.Discord.Unity
                     var closingPacket = _sendPacketsQueue.FirstOrDefault(p => p.DataType == typeof(HostConnect) || p.DataType == typeof(APG.Common.Packets.Types.CloseConnection));
                     if (closingPacket != null)
                     {
-                        if (_tcp.Connected)
-                            await _stream.WriteAsync(_packetManager.PackPacket(closingPacket).First());
+                        try
+                        {
+                            if (_tcp.Connected)
+                                await _stream.WriteAsync(_packetManager.PackPacket(closingPacket).First());
+                        }
+                        catch{}
                     }
                 }
 
@@ -190,8 +194,15 @@ namespace APG.Discord.Unity
                     var packets = _packetManager.PackPacket(packetToSend);
                     foreach (var packet in packets)
                     {
-                        if(_tcp.Connected)
-                            await _stream.WriteAsync(packet);
+                        try
+                        {
+                            if (_tcp.Connected)
+                                await _stream.WriteAsync(packet);
+                        }
+                        catch
+                        {
+                            CurrentStatus = Status.Closed;
+                        }
                     }
                 }
             }
