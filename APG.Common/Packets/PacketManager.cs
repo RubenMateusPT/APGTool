@@ -27,8 +27,9 @@ namespace APG.Common.Packets
                 
                 splitPacketsList.Add(packet);
 
-                if (splitPacketsList.Count == packet.Size)
+                if (splitPacketsList.Count == packet.Size) //Check if all required split packets are here
                 {
+                    //Rearrange them by their correct order (split packet number) and then merge them in one single packet
                     Type completeDataType = packet.GetData<SplitPacket>().DataType;
                     var completeData = Array.Empty<byte>();
                     foreach (var splitPacket in splitPacketsList.OrderBy(sp => sp.PartNumber))
@@ -56,12 +57,15 @@ namespace APG.Common.Packets
 
             var packed = packetToSend.Pack();
 
-            if (packed.Length >= MAX_BUFFER_SIZE)
+            //The split packet functionality is not working as the calculation to split the data and metadata are not consistent, making the packets always bigger the allowed size,
+            //This is a bug that needs to be fixed eventually
+            if (packed.Length >= MAX_BUFFER_SIZE) //If the packet to send is bigger than the alloweded send size
             {
+
                 //This Logic is not working as intented
                 var completeData = packetToSend.GetDataBytes();
-                var minimumForSplitPacket = (packed.Length - (packed.Length - completeData.Length)) * 1.50f;
-                int maxDataBytesPerPacket = (int) MathF.Ceiling((MAX_BUFFER_SIZE - minimumForSplitPacket) * 0.5f);
+                var minimumForSplitPacket = (packed.Length - (packed.Length - completeData.Length)) * 1.50f; // Allocate 50%(?) of allowed size for metadata
+                int maxDataBytesPerPacket = (int) MathF.Ceiling((MAX_BUFFER_SIZE - minimumForSplitPacket) * 0.5f); //Allocate 50% of allowed size for data
                 var requiredPackets = MathF.Ceiling(completeData.Length / (float)maxDataBytesPerPacket);
 
                 var bytesLeft = completeData.Length;
