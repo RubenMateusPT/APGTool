@@ -16,4 +16,38 @@ MonoBehaviour:
   port: 8000
   gameName: APG.Unity - v1.0
   commandDelimiter: 59
-  commands: []
+  commands:
+  - Name: Add Life
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 0
+    CooldownTime: 0
+    SendScreenshot: 0
+    ScreenshotDelay: 0
+    Parameters: []
+  - Name: Send Message
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 0
+    CooldownTime: 0
+    SendScreenshot: 0
+    ScreenshotDelay: 0
+    Parameters:
+    - Name: Message
+      Type: 0
+      IsRequired: 1
+      DefaultValue: 
+      Value: 
+  - Name: Lower Bridge
+    IsRequestFromGame: 1
+    RequestMessage: Someone Lower the bridge!
+    HasCooldown: 0
+    CooldownTime: 0
+    SendScreenshot: 1
+    ScreenshotDelay: 0
+    Parameters:
+    - Name: Code
+      Type: 1
+      IsRequired: 1
+      DefaultValue: 
+      Value: 

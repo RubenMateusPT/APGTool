@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
             return;
 
         _ui.ShowGameOver(false);
-        //APG Send Screenshot
+        FindFirstObjectByType<APGManager>().SendScreenShoot("Player has lost :(\nPerhaps you can help?");
         GameOver();
     }
 

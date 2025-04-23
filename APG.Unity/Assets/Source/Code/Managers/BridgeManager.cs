@@ -25,7 +25,7 @@ public class BridgeManager : MonoBehaviour
     public void RequestBridgeCode()
     {
         _bridgeCode = Random.Range(100, 200);
-        //APG Request
+        FindFirstObjectByType<APGManager>().SendRequest("Lower Bridge", _bridgeCode.ToString());
     }
 
     public void LowerBridgeWithCode(int code)
