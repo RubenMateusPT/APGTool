@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace APG.Server.Discord.Commands
 {
+    /// <summary>
+    /// Available Discord Bot Commands
+    /// </summary>
     internal class Command
     {
         //Server Related

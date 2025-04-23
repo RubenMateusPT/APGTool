@@ -72,6 +72,9 @@ namespace APG.Discord.Server
             }
         }
 
+        /// <summary>
+        /// Checks if all clients connected are still online, if not remove them
+        /// </summary>
         private void CheckClientStatus()
         {
             foreach (var client in clients)

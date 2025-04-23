@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using APG.Common.Commands;
+﻿using System.Net;
 using APG.Common.Discord;
 using APG.Common.Packets.Types;
 using APG.Discord.Server;
@@ -63,6 +57,7 @@ namespace APG.Server.Discord
 
         private async Task Ready()
         {
+            //This bit of code removes any old Discord Bot Commands from showing up on Discord
             //var cms = await _client.GetGlobalApplicationCommandsAsync();
             //foreach (var c in cms)
             //{
@@ -114,7 +109,7 @@ namespace APG.Server.Discord
 
             switch (command.Data.Name)
             {
-                case Command.DELETE_SERVER:
+                case Command.DELETE_SERVER: //Removes all Discord Channels, Removes the Unity Instance from the server and create a new Main Channel
                     foreach (var channel in guild.Channels)
                     {
                         await channel.DeleteAsync();
@@ -200,6 +195,7 @@ namespace APG.Server.Discord
                 }
             );
 
+            //Write Discord Message with all the available game commands
             string commandsList = "```\nAvailable Commands\n" +
                                   $"Param Delimiter: {unityClient.CommandDelimiter}\n\n";
             foreach (var unityCommand in unityClient.Commands)
@@ -242,7 +238,7 @@ namespace APG.Server.Discord
                     )
             );
 
-            //Save
+            //Create and Save this as a new Instance Of Discord <-> Unity Connection
             Tuple<ulong, ulong> instanceID = new Tuple<ulong, ulong>(guild.Id, chatChannel.Id);
             BotClient client = new BotClient(guild.Id, categoryChannel.Id, chatChannel.Id, guildUser.Id, this, unityClient);
             unityClient.OnStatusChange += UnityClient_OnStatusChange;
@@ -253,6 +249,11 @@ namespace APG.Server.Discord
             unityClient.Send(new HostConnect(true));
         }
 
+        /// <summary>
+        /// What to do when an Instance Status Changes
+        /// </summary>
+        /// <param name="unityClient"></param>
+        /// <param name="status"></param>
         private async void UnityClient_OnStatusChange(UnityClient unityClient, UnityClient.Status status)
         {
             if (status == UnityClient.Status.Disposed)
@@ -304,6 +305,7 @@ namespace APG.Server.Discord
                 return;
             }
 
+            //Add this User to the list of spectators of the game, save its discord image
             var spectators = instance.Spectators;
             if (!spectators.ContainsKey(command.User.Id))
             {
@@ -327,6 +329,7 @@ namespace APG.Server.Discord
                 spectators.Add(command.User.Id, new DiscordUser(guildUser.DisplayName, imgData));
             }
 
+            //Give the correct permission to the user
             await guild.GetCategoryChannel(instance.CategoryID)
                 .AddPermissionOverwriteAsync(
                     command.User,
@@ -342,6 +345,11 @@ namespace APG.Server.Discord
 
         }
 
+        /// <summary>
+        /// Send Command from Discord To Unity
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         private async Task SendGameCommand(SocketSlashCommand command)
         {
             var client = GetClient(command);

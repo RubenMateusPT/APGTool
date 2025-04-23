@@ -72,6 +72,9 @@ namespace APG.Discord.Unity
             CurrentStatus = Status.WaitingForHost;
         }
 
+        /// <summary>
+        /// Tells this Unity client is activated on the server (Got a host)
+        /// </summary>
         public void Activate()
         {
             Console.WriteLine($"{_tcp.Client.RemoteEndPoint} has a Owner now!");
@@ -219,7 +222,7 @@ namespace APG.Discord.Unity
                     {
                         _waitCounter += dt;
 
-                        if (_waitCounter > _maxWaitTime)
+                        if (_waitCounter > _maxWaitTime) //Makes sure host is still connected
                         {
                             if (_pingId == Guid.Empty)
                             {

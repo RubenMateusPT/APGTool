@@ -11,6 +11,9 @@ using Discord.WebSocket;
 
 namespace APG.Server.Discord
 {
+    /// <summary>
+    /// Helper class that bridges the Discord Bot and Unity Clients on custom Server
+    /// </summary>
     internal class BotClient
     {
         public ulong GuildID { get; private set; }
@@ -36,6 +39,11 @@ namespace APG.Server.Discord
             Unity.RegisterBot(this);
         }
 
+        /// <summary>
+        /// Send Screenshot From Unity to Discord
+        /// </summary>
+        /// <param name="screenshoot"></param>
+        /// <returns></returns>
         public async Task SendScreenshoot(Screenshoot screenshoot)
         {
             var textChannel = Discord.Client.GetGuild(GuildID).GetTextChannel(ChatID);

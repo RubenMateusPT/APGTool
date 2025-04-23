@@ -9,7 +9,7 @@ namespace APG.Discord
         static async Task Main(string[] args)
         {
             Console.WriteLine($"Pre configuring server...");
-            var builder = new ConfigurationBuilder()
+            var builder = new ConfigurationBuilder() //Don't forget to add a User Secrets(secrets.json) file with the Discord Bot Token!
                 .AddUserSecrets<Program>()
                 .Build();
             var botToken = builder.GetSection("BotToken").Value;
