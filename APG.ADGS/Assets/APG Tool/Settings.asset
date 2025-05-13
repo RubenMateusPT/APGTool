@@ -62,7 +62,7 @@ MonoBehaviour:
     RequestMessage: 
     HasCooldown: 0
     CooldownTime: 15
-    SendScreenshot: 1
+    SendScreenshot: 0
     ScreenshotDelay: 1.25
     Parameters: []
   - Name: Invert Controls
