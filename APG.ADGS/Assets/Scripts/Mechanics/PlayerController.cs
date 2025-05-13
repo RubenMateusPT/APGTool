@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using Platformer.Gameplay;
 using static Platformer.Core.Simulation;
@@ -14,6 +15,9 @@ namespace Platformer.Mechanics
     /// </summary>
     public class PlayerController : KinematicObject
     {
+        public bool canBeKilled = true;
+        public bool invertControlls = false;
+
         public AudioClip jumpAudio;
         public AudioClip respawnAudio;
         public AudioClip ouchAudio;
@@ -56,6 +60,8 @@ namespace Platformer.Mechanics
             if (controlEnabled)
             {
                 move.x = Input.GetAxis("Horizontal");
+                if (invertControlls)
+                    move.x = -move.x;
                 if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump"))
                     jumpState = JumpState.PrepareToJump;
                 else if (Input.GetButtonUp("Jump"))
@@ -97,6 +103,8 @@ namespace Platformer.Mechanics
                     }
                     break;
                 case JumpState.Landed:
+                    if(jumpTakeOffSpeed != 7)
+                        jumpTakeOffSpeed = 7;
                     jumpState = JumpState.Grounded;
                     break;
             }

@@ -40,6 +40,8 @@ namespace Platformer.Mechanics
         Animator animator;
         PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
+        public bool spawnInAir = false;
+
         protected virtual void Awake()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -48,6 +50,12 @@ namespace Platformer.Mechanics
 
         protected override void ComputeVelocity()
         {
+            if (spawnInAir)
+            {
+                targetVelocity.y = -1;
+                return;
+            }
+
             if (jump && IsGrounded)
             {
                 velocity.y = jumpTakeOffSpeed * model.jumpModifier;

@@ -20,6 +20,12 @@ namespace Platformer.Gameplay
 
         public override void Execute()
         {
+            if (!player.canBeKilled)
+            {
+                Schedule<EnemyDeath>().enemy = enemy;
+                return;
+            }
+
             var willHurtEnemy = player.Bounds.center.y >= enemy.Bounds.max.y;
 
             if (willHurtEnemy)
