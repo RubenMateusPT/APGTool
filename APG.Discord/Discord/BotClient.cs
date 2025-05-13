@@ -46,15 +46,20 @@ namespace APG.Server.Discord
         /// <returns></returns>
         public async Task SendScreenshoot(Screenshoot screenshoot)
         {
-            var textChannel = Discord.Client.GetGuild(GuildID).GetTextChannel(ChatID);
-
-            using (var ms = new MemoryStream(screenshoot.ScreenshootData))
+            try
             {
-                using (var png = new Image(ms))
+                var textChannel = Discord.Client.GetGuild(GuildID).GetTextChannel(ChatID);
+
+                using (var ms = new MemoryStream(screenshoot.ScreenshootData))
                 {
-                    await textChannel.SendFileAsync(png.Stream,$"{Guid.NewGuid().ToString()}.png", screenshoot.Message);
+                    using (var png = new Image(ms))
+                    {
+                        await textChannel.SendFileAsync(png.Stream, $"{Guid.NewGuid().ToString()}.png",
+                            screenshoot.Message);
+                    }
                 }
             }
+            catch{}
         }
 
         public async Task Delete()

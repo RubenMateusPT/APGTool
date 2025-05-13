@@ -23,6 +23,8 @@ public class Audience : MonoBehaviour
     public GameObject EnemiesParante;
     public GameObject EnemyPrefab;
 
+    public bool canEnableBridge;
+    public void SetEnableBridgeFlag(bool val) => canEnableBridge = val;
     public GameObject Bridge;
 
     private bool isEnding = false, ended = false;
@@ -32,6 +34,8 @@ public class Audience : MonoBehaviour
 
     private void Awake()
     {
+        canEnableBridge = false;
+
         playerController = Player.GetComponent<PlayerController>();
     }
 
@@ -40,7 +44,7 @@ public class Audience : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F5))
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
-        if(Input.GetKeyDown(KeyCode.F1))
+        if(Input.GetKeyDown(KeyCode.F8))
             EnableBridge();
 
         if(Input.GetKeyDown(KeyCode.F9))
@@ -260,6 +264,9 @@ public class Audience : MonoBehaviour
         if (isEnding)
             return;
 
+        if (!canEnableBridge)
+            return;
+
         if (Bridge.activeSelf)
             return;
 
@@ -293,8 +300,8 @@ public class Audience : MonoBehaviour
         FindFirstObjectByType<APGManager>().SendRequest("End", $"Audience, its time for the final challenge!\n" +
                                                                $"You can either help or kill the player!\n" +
                                                                $"The first to write the correct code will decide the player fate!\n\n" +
-                                                               $"HELP: \"/command end , ${helpCode}\"\n" +
-                                                               $"KILL: \"/command end , ${denyCode}\"\n");
+                                                               $"HELP: \"/command end , {helpCode}\"\n" +
+                                                               $"KILL: \"/command end , {denyCode}\"\n");
     }
 
 
@@ -311,22 +318,36 @@ public class Audience : MonoBehaviour
         if(!isEnding)
             return;
 
-        if (helpCode.Contains(keycode, StringComparison.InvariantCultureIgnoreCase))
+        bool isHelpCode = false;
+        bool isDenyCode = false;
+        string code = keycode;
+        code = code.TrimStart();
+        code = code.TrimEnd();
+
+
+        foreach (var help in helpCodes)
         {
-            End(true);
+            if (help.ToUpperInvariant() == code.ToUpperInvariant())
+            {
+                End(true);
+                return;
+            }
         }
-        else if (denyCode.Contains(keycode, StringComparison.InvariantCultureIgnoreCase))
+
+        foreach (var deny in denyCodes)
         {
-            End(false);
+            if (deny.ToUpperInvariant() == code.ToUpperInvariant())
+            {
+                End(false);
+                return;
+            }
         }
-        else
-        {
             //nothing happens
             finaltext.text = wrongCode[Random.Range(0,wrongCode.Length)];
-        }
+        
     }
 
-    private void End(bool playerwon)
+    public void End(bool playerwon)
     {
         if (ended)
             return;
@@ -359,6 +380,7 @@ public class Audience : MonoBehaviour
             }
         }
 
+        FindFirstObjectByType<APGManager>().SendScreenShoot(string.Empty);
         finaltext.text = "You have been\nSAFED!";
 
         yield return new WaitForSeconds(3);
@@ -382,6 +404,7 @@ public class Audience : MonoBehaviour
             }
         }
 
+        FindFirstObjectByType<APGManager>().SendScreenShoot(string.Empty);
         finaltext.text = "You have been\nDEMISED!";
 
         yield return new WaitForSeconds(3);
@@ -404,6 +427,7 @@ public class Audience : MonoBehaviour
 
         yield return new WaitForSeconds(0.25f);
 
+        FindFirstObjectByType<APGManager>().SendScreenShoot(string.Empty);
         final.SetActive(false);
     }
 }

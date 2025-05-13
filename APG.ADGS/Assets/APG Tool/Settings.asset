@@ -16,4 +16,116 @@ MonoBehaviour:
   port: 8000
   gameName: ADGS Demo
   commandDelimiter: 44
-  commands: []
+  commands:
+  - Name: Super Jump
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 3
+    SendScreenshot: 0
+    ScreenshotDelay: 0
+    Parameters: []
+  - Name: Faster
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 3
+    SendScreenshot: 0
+    ScreenshotDelay: 0
+    Parameters: []
+  - Name: Slower
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 5
+    SendScreenshot: 0
+    ScreenshotDelay: 0
+    Parameters: []
+  - Name: Stop
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 10
+    SendScreenshot: 0
+    ScreenshotDelay: 0
+    Parameters: []
+  - Name: Invulnerable
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 5
+    SendScreenshot: 0
+    ScreenshotDelay: 0
+    Parameters: []
+  - Name: Kill Player
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 0
+    CooldownTime: 15
+    SendScreenshot: 1
+    ScreenshotDelay: 1.25
+    Parameters: []
+  - Name: Invert Controls
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 10
+    SendScreenshot: 0
+    ScreenshotDelay: 0
+    Parameters: []
+  - Name: Spawn Enemy
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 15
+    SendScreenshot: 1
+    ScreenshotDelay: 1
+    Parameters:
+    - Name: Amount (Max 30)
+      Type: 1
+      IsRequired: 0
+      DefaultValue: 1
+      Value: 
+  - Name: Kill All Enemies
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 15
+    SendScreenshot: 1
+    ScreenshotDelay: 0.5
+    Parameters: []
+  - Name: Kill Enemy
+    IsRequestFromGame: 0
+    RequestMessage: 
+    HasCooldown: 1
+    CooldownTime: 5
+    SendScreenshot: 1
+    ScreenshotDelay: 0.5
+    Parameters:
+    - Name: Amount
+      Type: 1
+      IsRequired: 0
+      DefaultValue: 1
+      Value: 
+  - Name: Create Bridge
+    IsRequestFromGame: 1
+    RequestMessage: Someone help the player! Use "/command Create Bridge" to create
+      a bridge for the player!
+    HasCooldown: 0
+    CooldownTime: 5
+    SendScreenshot: 1
+    ScreenshotDelay: 0
+    Parameters: []
+  - Name: End
+    IsRequestFromGame: 1
+    RequestMessage: 
+    HasCooldown: 0
+    CooldownTime: 5
+    SendScreenshot: 1
+    ScreenshotDelay: 0.25
+    Parameters:
+    - Name: HELP or KILL KEYCODE
+      Type: 0
+      IsRequired: 1
+      DefaultValue: 
+      Value: 

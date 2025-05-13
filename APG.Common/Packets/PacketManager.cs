@@ -10,7 +10,7 @@ namespace APG.Common.Packets
     public class PacketManager
     {
         //max is 2 130 702 268
-        public const int MAX_BUFFER_SIZE = 100000; //Change this to lower....
+        public const int MAX_BUFFER_SIZE = 1000000; //Change this to lower....
 
         private Dictionary<Guid, List<Packet>> splitPackets = new Dictionary<Guid, List<Packet>>();
 
