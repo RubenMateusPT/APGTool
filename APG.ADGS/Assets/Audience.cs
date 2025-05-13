@@ -44,11 +44,14 @@ public class Audience : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F5))
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
-        if(Input.GetKeyDown(KeyCode.F8))
+        if (Input.GetKeyDown(KeyCode.F7))
+            KillAllEnemies();
+
+        if (Input.GetKeyDown(KeyCode.F8))
             EnableBridge();
 
         if(Input.GetKeyDown(KeyCode.F9))
-            End(false);
+            End(true);
     }
 
     private void OnDrawGizmosSelected()
@@ -381,7 +384,7 @@ public class Audience : MonoBehaviour
         }
 
         FindFirstObjectByType<APGManager>().SendScreenShoot(string.Empty);
-        finaltext.text = "You have been\nSAFED!";
+        finaltext.text = "You have been\nSAVED!";
 
         yield return new WaitForSeconds(3);
 
@@ -424,10 +427,7 @@ public class Audience : MonoBehaviour
         }*/
 
         Schedule<PlayerDeath>();
-
-        yield return new WaitForSeconds(0.25f);
-
-        FindFirstObjectByType<APGManager>().SendScreenShoot(string.Empty);
         final.SetActive(false);
+
     }
 }

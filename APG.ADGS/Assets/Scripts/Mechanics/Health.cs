@@ -1,4 +1,5 @@
 using System;
+using APG.Unity.Managers;
 using Platformer.Gameplay;
 using UnityEngine;
 using static Platformer.Core.Simulation;
@@ -50,11 +51,27 @@ namespace Platformer.Mechanics
         public void Die()
         {
             while (currentHP > 0) Decrement();
+
+            if (currentHP <= 0)
+            {
+                if (timeSinceLastDeath >= 3)
+                {
+                    timeSinceLastDeath = 0;
+                    FindFirstObjectByType<APGManager>().SendScreenShoot("Player has died!");
+                }
+            }
+                
         }
 
         void Awake()
         {
             currentHP = maxHP;
+        }
+
+        private float timeSinceLastDeath = 0;
+        private void Update()
+        {
+            timeSinceLastDeath += Time.deltaTime;
         }
     }
 }

@@ -110,6 +110,7 @@ namespace APG.Server.Discord
             switch (command.Data.Name)
             {
                 case Command.DELETE_SERVER: //Removes all Discord Channels, Removes the Unity Instance from the server and create a new Main Channel
+
                     foreach (var channel in guild.Channels)
                     {
                         await channel.DeleteAsync();
@@ -121,6 +122,17 @@ namespace APG.Server.Discord
                     }
 
                     await guild.CreateTextChannelAsync("main");
+
+                    foreach (var user in guild.Users)
+                    {
+                        if (user.Id != 156159600159096832 &&
+                            user.Id != 1351077479351062593 &&
+                            !user.IsBot)
+                        {
+                            await user.KickAsync(
+                                "Abertay Digital Graduate Show Demostrations is over. Thank you for participating!");
+                        }
+                    }
 
                     break;
 
