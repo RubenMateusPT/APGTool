@@ -246,7 +246,8 @@ namespace APG.Server.Discord
                     viewChannel: PermValue.Allow,
                     readMessageHistory: PermValue.Allow,
                     sendMessages: PermValue.Allow,
-                    useApplicationCommands: PermValue.Allow
+                    useApplicationCommands: PermValue.Allow,
+                    connect: PermValue.Allow
                     )
             );
 
@@ -349,7 +350,8 @@ namespace APG.Server.Discord
                         viewChannel: PermValue.Allow,
                         readMessageHistory: PermValue.Allow,
                         sendMessages: PermValue.Allow,
-                        useApplicationCommands: PermValue.Allow
+                        useApplicationCommands: PermValue.Allow,
+                        connect:PermValue.Allow
                     )
                 );
 
