@@ -30,16 +30,27 @@ namespace APG.Server.Discord
         {
             _serverManager = serverManager;
 
-            _client = new DiscordSocketClient();
+            _client = new DiscordSocketClient(new DiscordSocketConfig
+            {
+                GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers
+            });
             _token = token;
 
             _client.Log += Log;
             _client.Ready += Ready;
             _client.SlashCommandExecuted += SlashCommandHandler;
+            _client.UserJoined += OnUserJoingGuild;
+           
 
             AVATAR_BASE_FOLDER = $"{Environment.CurrentDirectory}/Avatars";
             if (!Directory.Exists(AVATAR_BASE_FOLDER))
                 Directory.CreateDirectory(AVATAR_BASE_FOLDER);
+        }
+
+        private async Task OnUserJoingGuild(SocketGuildUser user)
+        {
+            Console.WriteLine("New user joined");
+            await user.AddRoleAsync(await user.Guild.GetRoleAsync(1372499457953894450));
         }
 
         public async void Start()
@@ -63,7 +74,7 @@ namespace APG.Server.Discord
             //{
             //    await c.DeleteAsync();
             //}
-
+            
             List<SlashCommandBuilder> commands = new List<SlashCommandBuilder>
             {
                 new SlashCommandBuilder()
@@ -74,6 +85,16 @@ namespace APG.Server.Discord
                     .WithName(Command.DELETE_CATEGORY)
                     .WithDescription("Removes Category and its children")
                     .WithDefaultMemberPermissions(GuildPermission.Administrator),
+                
+                new SlashCommandBuilder()
+                    .WithName(Command.CLEAR_GAME_CHAT)
+                    .WithDescription("Clears Game Log")
+                    .WithDefaultMemberPermissions(GuildPermission.Administrator),
+                new SlashCommandBuilder()
+                    .WithName(Command.KICK_ADGS)
+                    .WithDescription("Removes All ADGS users")
+                    .WithDefaultMemberPermissions(GuildPermission.Administrator),
+
 
                 new SlashCommandBuilder()
                     .WithName(Command.HOST_JOIN)
@@ -149,6 +170,26 @@ namespace APG.Server.Discord
 
                         await category.DeleteAsync();
                     }
+
+                    break;
+
+                case Command.CLEAR_GAME_CHAT:
+                    break;
+
+                case Command.KICK_ADGS:
+                    List<SocketGuildUser> usersToRemove = new List<SocketGuildUser>();
+                    foreach(var user in guild.Users)
+                    {
+                        if(user.Roles.Any(ur => ur.Name == "ADGS Tester"))
+                        {
+                            usersToRemove.Add(user);
+                        }
+                    }
+
+                    foreach(var userToRemove in usersToRemove)
+                        await userToRemove.KickAsync("Thank you for participating on the Abertay Digital Graduate Show Demo!");
+
+                    await command.RespondAsync("Kicked Participants");
 
                     break;
 

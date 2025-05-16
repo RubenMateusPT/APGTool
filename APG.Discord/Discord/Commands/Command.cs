@@ -15,6 +15,9 @@ namespace APG.Server.Discord.Commands
         public const string DELETE_SERVER = "nuke";
         public const string DELETE_CATEGORY = "delete-category";
 
+        public const string CLEAR_GAME_CHAT = "clear-game-chat";
+        public const string KICK_ADGS = "kick-adgs";
+
         //Game Related
         public const string HOST_JOIN = "create";
         public const string CLIENT_JOIN = "join";
