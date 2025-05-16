@@ -19,6 +19,8 @@ namespace APG.Server.Discord
         public ulong GuildID { get; private set; }
         public ulong CategoryID { get; private set; }
         public ulong ChatID { get; private set; }
+        public ulong CommandsMessageID { get; set; }
+        public ulong VoiceChannelID { get; set; }
         public ulong HostId { get; private set; }
         public Dictionary<ulong, DiscordUser> Spectators { get; private set; }
 

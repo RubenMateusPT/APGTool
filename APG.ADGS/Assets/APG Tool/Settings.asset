@@ -113,7 +113,7 @@ MonoBehaviour:
       a bridge for the player!
     HasCooldown: 0
     CooldownTime: 5
-    SendScreenshot: 1
+    SendScreenshot: 0
     ScreenshotDelay: 0
     Parameters: []
   - Name: End

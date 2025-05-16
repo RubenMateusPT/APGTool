@@ -174,6 +174,31 @@ namespace APG.Server.Discord
                     break;
 
                 case Command.CLEAR_GAME_CHAT:
+                    var textChannel = command.Channel;
+                    var correspondingGame = _instances.Values.FirstOrDefault(i => i.ChatID == textChannel.Id, null);
+
+                    if(correspondingGame != null)
+                    {
+                        await command.DeferAsync();
+                        
+                        var messages = await textChannel.GetMessagesAsync(5).FlattenAsync();
+                        while (messages.Count() != 1)
+                        {
+                            foreach (var m in messages)
+                            {
+                                if (m.Id != correspondingGame.CommandsMessageID)
+                                {
+                                    await m.DeleteAsync();
+                                    await Task.Delay(500);
+                                }
+                            }
+
+                            messages = await textChannel.GetMessagesAsync(5).FlattenAsync();
+                        }
+                    }
+
+                    await command.RespondAsync("Cleaned Up");
+
                     break;
 
                 case Command.KICK_ADGS:
@@ -295,6 +320,8 @@ namespace APG.Server.Discord
             //Create and Save this as a new Instance Of Discord <-> Unity Connection
             Tuple<ulong, ulong> instanceID = new Tuple<ulong, ulong>(guild.Id, chatChannel.Id);
             BotClient client = new BotClient(guild.Id, categoryChannel.Id, chatChannel.Id, guildUser.Id, this, unityClient);
+            client.CommandsMessageID = commandsMessage.Id;
+            client.VoiceChannelID = voiceChannel.Id;
             unityClient.OnStatusChange += UnityClient_OnStatusChange;
             _instances.Add(instanceID, client);
 
@@ -318,13 +345,25 @@ namespace APG.Server.Discord
                 var guild = _client.GetGuild(botClient.GuildID);
                 try
                 {
+                    var voiceChannel = guild.GetVoiceChannel(botClient.VoiceChannelID);
+                    if (voiceChannel.ConnectedUsers != null)
+                    {
+                        foreach (var connectedUser in voiceChannel.ConnectedUsers)
+                        {
+                            await connectedUser.ModifyAsync(cu => cu.Channel = null);
+                        }
+                    }
                     var categoryChannel = guild.GetCategoryChannel(botClient.CategoryID);
+                  
+
                     foreach (var spectator in botClient.Spectators.Keys)
                     {
                         await categoryChannel.RemovePermissionOverwriteAsync(guild.GetUser(spectator));
                     }
 
                     await categoryChannel.RemovePermissionOverwriteAsync(guild.GetUser(botClient.HostId));
+
+               
                 }
                 catch { }
 

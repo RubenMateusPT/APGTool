@@ -274,6 +274,7 @@ public class Audience : MonoBehaviour
             return;
 
         Bridge.SetActive(true);
+        FindFirstObjectByType<APGManager>().SendScreenShoot("Thank you!");
     }
 
 
